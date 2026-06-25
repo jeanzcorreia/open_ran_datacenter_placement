@@ -1,0 +1,57 @@
+# configs/experiment.yaml — Fase 4 (otimizador-LLM ReEvo) + avaliação.
+# O laço interno usa o modelo MAIS BARATO (Haiku); a reflexão usa um modelo mais forte.
+
+llm:
+  backend: routed            # routed: geração no Groq, reflexão no Gemini
+  max_tokens: 8000
+  cache: true                # cache de respostas em disco (idempotência / re-runs)
+  cache_dir: results/phase4/llm_cache
+
+  # GERAÇÃO / CROSSOVER / MUTAÇÃO -> Groq (free: 1000 req/dia, 12000 TPM p/ llama-3.3-70b).
+  # (Groq não tem qwen3-coder; usando o fallback llama-3.3-70b-versatile. Alternativa: qwen/qwen3-32b.)
+  generation:
+    provider: groq
+    base_url: https://api.groq.com/openai/v1
+    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/groq.key
+    model: llama-3.3-70b-versatile
+    tpm: 11000               # < 12000 real (margem); pacing por TOKENS (token bucket)
+    rpm: 28                  # < 30 RPM
+    min_interval_sec: 1.0
+    est_output_tokens: 1200  # saída real ~300-700 tok; 1200 dá margem sem super-pacing
+    read_headers: true       # sincroniza com x-ratelimit-* do Groq
+    max_retries: 4
+    request_timeout: 40
+
+  # REFLEXÃO -> Gemini (poucas chamadas; bucket próprio, fora do flash-lite 20/dia).
+  reflection:
+    provider: gemini
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/gemini.key
+    # gemini-3-flash-preview dava 503 (overloaded) com frequência -> usar o GA estável gemini-2.5-flash.
+    model: gemini-2.5-flash
+    min_interval_sec: 5.0              # ~12 RPM
+    read_headers: false                # Gemini não expõe x-ratelimit-*
+    max_retries: 4
+    request_timeout: 40
+
+budget:
+  max_calls: 400             # teto de chamadas LLM
+  max_output_tokens: 600000  # teto de tokens de saída
+  usd_limit: 5.0             # teto de custo estimado (US$) — para se exceder
+
+reevo:
+  pop_size: 8
+  generations: 6
+  elite: 2
+  seed: 1
+
+problem:                     # cenário do MODO JUSTO (Fase 3)
+  train_csv: CityData/Natal.csv
+  transfer_csv: CityData/Manaus.csv
+  max_distance: 11.0
+  max_capacity: 1000.0
+  cpu_per_100mhz: 14
+
+eval:
+  seeds: [1, 2, 3]           # seeds para reevo/zero_shot e baselines comparáveis
+  baseline_seeds: [1, 2, 3, 4, 5]   # seeds dos baselines (Fase 3 usou 5)

@@ -1,0 +1,6 @@
+{"op": "generate", "model": "llama-3.3-70b-versatile", "cached": false, "key": "b0f3544b5ccccfb81510dc0d", "elapsed": 1.67, "input_tokens": 666, "output_tokens": 414, "cache_read_tokens": 0}
+{"op": "generate", "model": "llama-3.3-70b-versatile", "cached": false, "key": "915a535b84de1321a700b185", "elapsed": 1.39, "input_tokens": 667, "output_tokens": 382, "cache_read_tokens": 0}
+{"op": "crossover", "model": "llama-3.3-70b-versatile", "cached": false, "key": "af9c98d9c6f59d2808a6cb93", "elapsed": 23.14, "input_tokens": 1446, "output_tokens": 781, "cache_read_tokens": 0}
+{"op": "mutate", "model": "llama-3.3-70b-versatile", "cached": false, "key": "37d58a355bde6a1e589d0940", "elapsed": 49.15, "input_tokens": 1078, "output_tokens": 272, "cache_read_tokens": 0}
+{"op": "crossover", "model": "llama-3.3-70b-versatile", "cached": true, "key": "af9c98d9c6f59d2808a6cb93"}
+{"op": "mutate", "model": "llama-3.3-70b-versatile", "cached": true, "key": "37d58a355bde6a1e589d0940"}

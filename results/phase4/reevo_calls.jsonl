@@ -1,0 +1,68 @@
+{"op": "generate", "model": "claude-haiku-4-5", "cached": false, "key": "e712ade712401271b382c5c7", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "generate", "model": "claude-haiku-4-5", "cached": true, "key": "e712ade712401271b382c5c7"}
+{"op": "reflect_short", "model": "claude-sonnet-4-6", "cached": false, "key": "f6317408ca6922c4efb2cf7e", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "reflect_long", "model": "claude-sonnet-4-6", "cached": false, "key": "f9d8f73a3aa3b14e4d4a668c", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": false, "key": "1138a906e278052f603f8d03", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "1138a906e278052f603f8d03"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "1138a906e278052f603f8d03"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "1138a906e278052f603f8d03"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": false, "key": "2eacd94adeb91df27979a2ec", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "2eacd94adeb91df27979a2ec"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "2eacd94adeb91df27979a2ec"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "2eacd94adeb91df27979a2ec"}
+{"op": "reflect_short", "model": "claude-sonnet-4-6", "cached": false, "key": "d108b083478730c7e8673246", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "reflect_long", "model": "claude-sonnet-4-6", "cached": false, "key": "ca7f20a47556f558f026ce70", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": false, "key": "d2bd7d26ecab4dc3df3a02e0", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": false, "key": "f64ca8030999180c24f308cb", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "reflect_short", "model": "claude-sonnet-4-6", "cached": false, "key": "5fc334ce844b0dd030cdf0cb", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "reflect_long", "model": "claude-sonnet-4-6", "cached": false, "key": "2fbb37a807a0c619af4a6a4a", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "reflect_short", "model": "claude-sonnet-4-6", "cached": true, "key": "5fc334ce844b0dd030cdf0cb"}
+{"op": "reflect_long", "model": "claude-sonnet-4-6", "cached": false, "key": "1acfa5f275b4a59c09a4e28b", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "reflect_short", "model": "claude-sonnet-4-6", "cached": true, "key": "5fc334ce844b0dd030cdf0cb"}
+{"op": "reflect_long", "model": "claude-sonnet-4-6", "cached": false, "key": "347fd93578ba724187ede861", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "reflect_short", "model": "claude-sonnet-4-6", "cached": true, "key": "5fc334ce844b0dd030cdf0cb"}
+{"op": "reflect_long", "model": "claude-sonnet-4-6", "cached": false, "key": "c2c987f645d1c176e81b0078", "elapsed": 0.0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "crossover", "model": "claude-haiku-4-5", "cached": true, "key": "d2bd7d26ecab4dc3df3a02e0"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}
+{"op": "mutate", "model": "claude-haiku-4-5", "cached": true, "key": "f64ca8030999180c24f308cb"}

@@ -1,0 +1,15 @@
+{
+  "method": "reevo_transfer",
+  "instance": "Manaus_sites",
+  "seed": 0,
+  "budget": 0,
+  "n_solutions": 28,
+  "n_var": 90,
+  "n_obj": 2,
+  "meta": {
+    "internal_hv": 0.36656164660963136,
+    "n_valid_sweep": 28,
+    "sweep_points": 87,
+    "source": "evolved_on_Natal"
+  }
+}

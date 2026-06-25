@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+data/raw/
+*.zip
+Estacoes_SMP.csv
+
+*.key
+results/**/cache/
+results/*cache*
+*.log

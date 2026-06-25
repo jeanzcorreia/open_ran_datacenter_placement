@@ -1,0 +1,1 @@
+{"text": "Heur\u00edsticas que adicionam ODCs minimizando a dist\u00e2ncia m\u00e9dia (greedy k-median) dominam as que ordenam por demanda: a dist\u00e2ncia \u00e9 o objetivo discriminante e o greedy aproxima bem o \u00f3timo por k. Capacidade raramente \u00e9 o gargalo (cargas << 1000).", "usage": {"input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}}

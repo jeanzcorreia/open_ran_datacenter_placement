@@ -1,0 +1,98 @@
+# data/cities.yaml — Fase 5 (DADOS). GERADO por src/data_prep/smp_adapter.py.
+# Fonte: dump nacional "Estações do SMP" (Anatel).
+# Filtro 5G: Tecnologia == "NR" (idêntico a Geração == "5G").
+# Escopo: TODAS as operadoras (cenário Open RAN / O-Cloud neutral-host, multi-operator).
+# Linhas em nível de PORTADORA, SEM dedupe. cell_site_id = Número Estação (único por
+# operadora; não colide entre operadoras — verificado).
+# As âncoras single-operator CityData/{Natal,Manaus}.csv (Fases 2-4) permanecem intactas
+# e NÃO fazem parte deste registro.
+source:
+  dataset: "Estações do SMP (Anatel)"
+  snapshot: "2026-06-22"
+  raw_file: data/raw/Estacoes_SMP.csv
+  encoding: utf-8-sig
+  delimiter: ";"
+  filter_5g: 'Tecnologia == "NR"'
+  operator_scope: all          # multi-operator
+  dedupe: false
+cities:
+  - name: Manaus
+    uf: AM
+    ibge: 1302603
+    n_lines_5g: 1172
+    n_sites: 1009
+    n_operators: 3
+    csv: data/processed/Manaus.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Natal
+    uf: RN
+    ibge: 2408102
+    n_lines_5g: 627
+    n_sites: 453
+    n_operators: 4
+    csv: data/processed/Natal.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Belo Horizonte
+    uf: MG
+    ibge: 3106200
+    n_lines_5g: 1524
+    n_sites: 1111
+    n_operators: 3
+    csv: data/processed/BeloHorizonte.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Curitiba
+    uf: PR
+    ibge: 4106902
+    n_lines_5g: 1362
+    n_sites: 975
+    n_operators: 3
+    csv: data/processed/Curitiba.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Recife
+    uf: PE
+    ibge: 2611606
+    n_lines_5g: 920
+    n_sites: 709
+    n_operators: 4
+    csv: data/processed/Recife.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Goiânia
+    uf: GO
+    ibge: 5208707
+    n_lines_5g: 1198
+    n_sites: 722
+    n_operators: 3
+    csv: data/processed/Goiania.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Florianópolis
+    uf: SC
+    ibge: 4205407
+    n_lines_5g: 448
+    n_sites: 350
+    n_operators: 4
+    csv: data/processed/Florianopolis.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Campo Grande
+    uf: MS
+    ibge: 5002704
+    n_lines_5g: 490
+    n_sites: 431
+    n_operators: 3
+    csv: data/processed/CampoGrande.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: João Pessoa
+    uf: PB
+    ibge: 2507507
+    n_lines_5g: 615
+    n_sites: 414
+    n_operators: 4
+    csv: data/processed/JoaoPessoa.csv
+    source: "dump nacional SMP, 2026-06-22"
+  - name: Vitória
+    uf: ES
+    ibge: 3205309
+    n_lines_5g: 429
+    n_sites: 270
+    n_operators: 3
+    csv: data/processed/Vitoria.csv
+    source: "dump nacional SMP, 2026-06-22"

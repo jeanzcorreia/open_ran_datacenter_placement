@@ -1,0 +1,120 @@
+{
+  "config_reduced": {
+    "pop_size": 100,
+    "n_gen": 20,
+    "seeds": 1,
+    "mode": "fair (FairODCProblem), multi-operator",
+    "scenario": {
+      "max_distance_km": 11,
+      "max_capacity": 1000,
+      "cpu_per_100mhz": 14
+    }
+  },
+  "config_full": {
+    "pop_size": 300,
+    "n_gen": 60,
+    "seeds_ea": 5,
+    "seeds_greedy": 1
+  },
+  "measured_reduced_wall_sec": [
+    {
+      "city": "Vitoria",
+      "method": "nsga2",
+      "n_clients": 429,
+      "n_sites": 270,
+      "wall_sec": 0.342,
+      "inner_sec": 0.33,
+      "n_eval": 2000,
+      "front": 36
+    },
+    {
+      "city": "Vitoria",
+      "method": "nsga3",
+      "n_clients": 429,
+      "n_sites": 270,
+      "wall_sec": 0.33,
+      "inner_sec": 0.323,
+      "n_eval": 2000,
+      "front": 17
+    },
+    {
+      "city": "Vitoria",
+      "method": "moead",
+      "n_clients": 429,
+      "n_sites": 270,
+      "wall_sec": 0.853,
+      "inner_sec": 0.845,
+      "n_eval": 2000,
+      "front": 9
+    },
+    {
+      "city": "Vitoria",
+      "method": "greedy",
+      "n_clients": 429,
+      "n_sites": 270,
+      "wall_sec": 0.126,
+      "inner_sec": 0.125,
+      "n_eval": 270,
+      "front": 260
+    },
+    {
+      "city": "BeloHorizonte",
+      "method": "nsga2",
+      "n_clients": 1524,
+      "n_sites": 1111,
+      "wall_sec": 6.4,
+      "inner_sec": 6.3,
+      "n_eval": 2000,
+      "front": 32
+    },
+    {
+      "city": "BeloHorizonte",
+      "method": "nsga3",
+      "n_clients": 1524,
+      "n_sites": 1111,
+      "wall_sec": 6.423,
+      "inner_sec": 6.369,
+      "n_eval": 2000,
+      "front": 17
+    },
+    {
+      "city": "BeloHorizonte",
+      "method": "moead",
+      "n_clients": 1524,
+      "n_sites": 1111,
+      "wall_sec": 6.778,
+      "inner_sec": 6.544,
+      "n_eval": 2000,
+      "front": 4
+    },
+    {
+      "city": "BeloHorizonte",
+      "method": "greedy",
+      "n_clients": 1524,
+      "n_sites": 1111,
+      "wall_sec": 8.961,
+      "inner_sec": 8.949,
+      "n_eval": 1111,
+      "front": 1066
+    }
+  ],
+  "extrapolation_model": {
+    "ea": "t_full_1seed = (a+b*nc*ns)*9 ; fator 9 = 18000/2000 evals ; fit 2 pontos (Vitoria,BH)",
+    "greedy": "t = a+b*(ns^2*nc) ; independente de pop/gen/seed (deterministico)"
+  },
+  "estimate_full_total": {
+    "nsga2_sec": 1119,
+    "nsga3_sec": 1119,
+    "moead_sec": 1328,
+    "greedy_sec": 28,
+    "grand_total_sec_1core": 3594,
+    "grand_total_min_1core": 59.9,
+    "grand_total_min_12cores": 6.0
+  },
+  "cap_options_sec_1core": {
+    "none": 3594,
+    "kmeans_k200_big_cities": 1256,
+    "kmeans_k300_big_cities": 1576
+  },
+  "note": "Baselines CPU-only; Fase 4/ReEvo NAO medido aqui (API-bound). Phase 4 rodando em paralelo (API-bound, 7% CPU)."
+}

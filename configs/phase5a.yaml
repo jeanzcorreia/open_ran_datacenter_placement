@@ -1,0 +1,89 @@
+# configs/phase5a.yaml — Fase 5a CORRIGIDA: ReEvo MULTI-CIDADE + benchmark 10 + generalização.
+# Roteamento OPÇÃO B (Gemini-only, conta pessoal nova; Groq REMOVIDO): geração/crossover/mutação
+# -> gemini-2.5-flash (modelo mais forte, prioriza QUALIDADE da heurística — a falha da rodada
+# anterior); reflexão -> gemini-2.5-flash-lite (RPD alto, baixo volume). RPDs (free 2026): flash
+# 250/dia 10 RPM; flash-lite 1000/dia 15 RPM. 4 seeds (~55 chamadas gen/seed = 220 < 250).
+# 🔒 INTEGRIDADE: o ReEvo TREINA e SELECIONA só nas 6 cidades de `split.train`. As 4 de
+# `split.test` NUNCA entram no fitness — só no benchmark final (generalização held-out).
+
+llm:
+  backend: routed
+  max_tokens: 8000
+  cache: true
+  cache_dir: results/phase5a_llm_cache   # cache próprio da Fase 5a (Gemini); fora de results/phase5a (não some no rm)
+
+  # GERAÇÃO/CROSSOVER/MUTAÇÃO -> gemini-2.5-flash (forte). 250 RPD, 10 RPM.
+  generation:
+    provider: gemini
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/gemini.key
+    model: gemini-2.5-flash
+    min_interval_sec: 4.0      # cada chamada já leva ~9s (sem thinking) -> bem < 10 RPM
+    rpm: 10
+    read_headers: false        # Gemini não expõe x-ratelimit-*
+    max_retries: 3             # resiliência a 503 transitório (overload); quota fresca
+    request_timeout: 90
+    temperature: 1.0           # variância REAL entre seeds (c/ cache namespace por seed)
+    reasoning_effort: none     # DESLIGA o "thinking" do 2.5-flash (50s -> ~9s/chamada); mantém modelo forte
+
+  # REFLEXÃO -> gemini-2.5-flash-lite. 1000 RPD, 15 RPM. Baixo volume.
+  reflection:
+    provider: gemini
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/gemini.key
+    model: gemini-2.5-flash-lite
+    min_interval_sec: 3.0      # ~15 RPM
+    read_headers: false
+    max_retries: 3
+    request_timeout: 90
+    reasoning_effort: none     # reflexão é dormente; sem thinking p/ velocidade
+
+budget:
+  max_calls: 1200            # 4 seeds × ~68 = ~272; teto folgado
+  max_output_tokens: 600000
+  usd_limit: 5.0
+
+reevo:
+  pop_size: 8
+  generations: 6
+  elite: 2
+  seeds: [1, 2, 3, 4]        # 4 seeds (variância real via cache namespace + temperatura) -> média±IC
+
+problem:                     # cenário do MODO JUSTO (sem cap; todos os sites)
+  max_distance: 11.0
+  max_capacity: 1000.0
+  cpu_per_100mhz: 14
+
+# Split treino/teste (trava dura §10). Chave = basename do CSV em data/processed/.
+split:
+  train: [Manaus, Natal, BeloHorizonte, Goiania, JoaoPessoa, CampoGrande]
+  test:  [Curitiba, Recife, Florianopolis, Vitoria]
+
+# Nomes de exibição (com acento) para os relatórios.
+display_names:
+  Manaus: Manaus
+  Natal: Natal
+  BeloHorizonte: Belo Horizonte
+  Goiania: Goiânia
+  JoaoPessoa: João Pessoa
+  CampoGrande: Campo Grande
+  Curitiba: Curitiba
+  Recife: Recife
+  Florianopolis: Florianópolis
+  Vitoria: Vitória
+
+eval:
+  baseline_seeds: [1, 2, 3, 4, 5]   # EAs e random; greedy é determinístico (1 seed)
+  pop_size: 300
+  n_gen: 60
+  parallel: true                    # paraleliza baselines por (cidade × método × seed)
+  max_workers: 11                   # <= nproc-1
+  sweep_max_points: 200             # sweep da aplicação da vencedora (denso, limitado)
+  loop_sweep_points: 12             # nº de pontos do sweep no LAÇO de treino (coarse, p/ velocidade)
+  # timeout APERTADO no laço: uma heurística vetorizada limpa roda em <50 ms mesmo em BH
+  # (1524×1111); só heurísticas NÃO-escaláveis (laços python) estouram 0.6 s -> penalizadas
+  # pela robustez (exatamente o que queremos: a vencedora TEM de escalar p/ cidades grandes).
+  loop_per_call_timeout: 0.6        # timeout (s) por chamada da heurística no LAÇO de treino
+  apply_per_call_timeout: 2.5       # timeout (s) por chamada na aplicação às 10 cidades
+  # zero-shot = melhor da MESMA população inicial do ReEvo (n_samples = reevo.pop_size),
+  # ablação limpa do laço evolutivo; definido no runner (não configurável aqui).

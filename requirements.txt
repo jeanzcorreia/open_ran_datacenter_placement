@@ -1,0 +1,25 @@
+# SML_LLM — dependências FIXADAS (Fase 2) para reprodutibilidade.
+# Verificadas funcionando juntas em Python 3.10.12 (Linux).
+#
+# pymoo 0.6.1.3 expõe EXATAMENTE a API usada por odc_placement_parser.py:
+#   - pymoo.algorithms.moo.nsga2.NSGA2
+#   - pymoo.core.problem.Problem  (kwargs legados n_obj / n_constr; n_constr=2 -> n_ieq_constr=2)
+#   - pymoo.optimize.minimize
+#   - pymoo.termination.default.DefaultSingleObjectiveTermination
+#   (a 0.5.x usava pymoo.util.termination.default — caminho ANTIGO, comentado no parser.)
+# Compatível com numpy 2.0.0 (smoke test da API completa passou).
+pymoo==0.6.1.3
+numpy==2.0.0
+pandas==2.2.3
+scikit-learn==1.5.2
+matplotlib==3.9.3
+
+# NOTA: o parser ORIGINAL (odc_placement_parser.py) também importa contextily, pyproj,
+# imageio e tqdm — usados SOMENTE para plotagem/GIF do script legado. A camada src/
+# (problem + baseline NSGA-II) NÃO depende deles. Instale-os à parte se for rodar o
+# script original com geração de mapas/GIF.
+
+# --- Fase 4 (otimizador-LLM) ---
+pyyaml==6.0.2
+openai==2.43.0       # cliente do endpoint OpenAI-compatível do Gemini (provedor atual da Fase 4)
+# anthropic==0.111.0 # opcional: backend Anthropic (provider-agnostic); não usado na config atual (Gemini)

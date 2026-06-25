@@ -1,0 +1,6 @@
+{"op": "generate", "model": "gemini-2.5-flash-lite", "cached": false, "key": "4093fd1473f4159b4ddb6662", "elapsed": 9.53, "input_tokens": 612, "output_tokens": 2030, "cache_read_tokens": 0}
+{"op": "generate", "model": "gemini-2.5-flash-lite", "cached": true, "key": "4093fd1473f4159b4ddb6662"}
+{"op": "crossover", "model": "gemini-2.5-flash-lite", "cached": false, "key": "bf943a8adae1b74bea1c03ad", "elapsed": 7.14, "input_tokens": 4693, "output_tokens": 1842, "cache_read_tokens": 0}
+{"op": "mutate", "model": "gemini-2.5-flash-lite", "cached": false, "key": "6edd7599ac970eac1fc1b6f5", "elapsed": 29.11, "input_tokens": 2669, "output_tokens": 1918, "cache_read_tokens": 0}
+{"op": "crossover", "model": "gemini-2.5-flash-lite", "cached": true, "key": "bf943a8adae1b74bea1c03ad"}
+{"op": "mutate", "model": "gemini-2.5-flash-lite", "cached": true, "key": "6edd7599ac970eac1fc1b6f5"}
