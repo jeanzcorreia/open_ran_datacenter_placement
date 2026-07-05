@@ -1,42 +1,41 @@
 # configs/phase5a.yaml — Fase 5a CORRIGIDA: ReEvo MULTI-CIDADE + benchmark 10 + generalização.
-# Roteamento OPÇÃO B (Gemini-only, conta pessoal nova; Groq REMOVIDO): geração/crossover/mutação
-# -> gemini-2.5-flash (modelo mais forte, prioriza QUALIDADE da heurística — a falha da rodada
-# anterior); reflexão -> gemini-2.5-flash-lite (RPD alto, baixo volume). RPDs (free 2026): flash
-# 250/dia 10 RPM; flash-lite 1000/dia 15 RPM. 4 seeds (~55 chamadas gen/seed = 220 < 250).
+# Roteamento LOCAL (Groq/Gemini REMOVIDOS — sem API key): geração/crossover/mutação E reflexão
+# -> endpoint OpenAI-compatível LOCAL (Ollama, http://localhost:11434/v1), modelo
+# qwen2.5-coder:7b (Q4_K_M, ~4.7 GB; cabe nos 8 GB da RX 5700 XT via Vulkan). Sem RPM/RPD/custo
+# (inferência local). Variância entre seeds vem do cache-namespace por seed + temperatura>0.
 # 🔒 INTEGRIDADE: o ReEvo TREINA e SELECIONA só nas 6 cidades de `split.train`. As 4 de
 # `split.test` NUNCA entram no fitness — só no benchmark final (generalização held-out).
 
 llm:
   backend: routed
-  max_tokens: 8000
+  max_tokens: 1500           # heurística cabe; limita o tempo de geração (~42s @ 36 tok/s) p/ caber no timeout de 60s
   cache: true
-  cache_dir: results/phase5a_llm_cache   # cache próprio da Fase 5a (Gemini); fora de results/phase5a (não some no rm)
+  cache_dir: results/phase5a_llm_cache   # cache próprio da Fase 5a; fora de results/phase5a (não some no rm)
 
-  # GERAÇÃO/CROSSOVER/MUTAÇÃO -> gemini-2.5-flash (forte). 250 RPD, 10 RPM.
+  # GERAÇÃO/CROSSOVER/MUTAÇÃO -> modelo LOCAL (Ollama, Vulkan). Sem RPM/custo.
   generation:
-    provider: gemini
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/gemini.key
-    model: gemini-2.5-flash
-    min_interval_sec: 4.0      # cada chamada já leva ~9s (sem thinking) -> bem < 10 RPM
-    rpm: 10
-    read_headers: false        # Gemini não expõe x-ratelimit-*
-    max_retries: 3             # resiliência a 503 transitório (overload); quota fresca
-    request_timeout: 90
-    temperature: 1.0           # variância REAL entre seeds (c/ cache namespace por seed)
-    reasoning_effort: none     # DESLIGA o "thinking" do 2.5-flash (50s -> ~9s/chamada); mantém modelo forte
-
-  # REFLEXÃO -> gemini-2.5-flash-lite. 1000 RPD, 15 RPM. Baixo volume.
-  reflection:
-    provider: gemini
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/gemini.key
-    model: gemini-2.5-flash-lite
-    min_interval_sec: 3.0      # ~15 RPM
+    provider: local
+    base_url: http://localhost:11434/v1   # Ollama OpenAI-compat (LM Studio = http://localhost:1234/v1)
+    api_key_file: configs/local.key       # chave DUMMY: o servidor local ignora, mas o SDK exige string não-vazia
+    model: qwen2.5-coder:7b
+    min_interval_sec: 0.0      # local: sem rate limit
     read_headers: false
-    max_retries: 3
-    request_timeout: 90
-    reasoning_effort: none     # reflexão é dormente; sem thinking p/ velocidade
+    max_retries: 1             # 1 retry e segue (skip/continue): chamada ruim não trava a rodada
+    request_timeout: 60        # ~60s por chamada ao Ollama; chamada pendurada falha rápido -> heurística pulada
+    temperature: 0.4           # MENOR p/ reduzir código quebrado do 7B; >0 mantém variância entre seeds
+    # SEM reasoning_effort: qwen2.5-coder não é "thinking"; o endpoint local rejeitaria/ignoraria o parâmetro
+
+  # REFLEXÃO -> mesmo modelo LOCAL (baixo volume).
+  reflection:
+    provider: local
+    base_url: http://localhost:11434/v1
+    api_key_file: configs/local.key
+    model: qwen2.5-coder:7b
+    min_interval_sec: 0.0
+    read_headers: false
+    max_retries: 1             # idem: 1 retry e segue
+    request_timeout: 60        # ~60s por chamada
+    # SEM reasoning_effort (idem)
 
 budget:
   max_calls: 1200            # 4 seeds × ~68 = ~272; teto folgado
@@ -79,11 +78,11 @@ eval:
   parallel: true                    # paraleliza baselines por (cidade × método × seed)
   max_workers: 11                   # <= nproc-1
   sweep_max_points: 200             # sweep da aplicação da vencedora (denso, limitado)
-  loop_sweep_points: 12             # nº de pontos do sweep no LAÇO de treino (coarse, p/ velocidade)
+  loop_sweep_points: 8              # nº de pontos do sweep no LAÇO (reduzido 12->8 p/ cortar custo do sandbox em 6 cidades)
   # timeout APERTADO no laço: uma heurística vetorizada limpa roda em <50 ms mesmo em BH
   # (1524×1111); só heurísticas NÃO-escaláveis (laços python) estouram 0.6 s -> penalizadas
   # pela robustez (exatamente o que queremos: a vencedora TEM de escalar p/ cidades grandes).
-  loop_per_call_timeout: 0.6        # timeout (s) por chamada da heurística no LAÇO de treino
+  loop_per_call_timeout: 0.4        # timeout (s) por chamada no LAÇO (reduzido 0.6->0.4: penaliza mais cedo heurística lenta do 7B)
   apply_per_call_timeout: 2.5       # timeout (s) por chamada na aplicação às 10 cidades
   # zero-shot = melhor da MESMA população inicial do ReEvo (n_samples = reevo.pop_size),
   # ablação limpa do laço evolutivo; definido no runner (não configurável aqui).
