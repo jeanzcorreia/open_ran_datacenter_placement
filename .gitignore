@@ -5,6 +5,10 @@ data/raw/
 Estacoes_SMP.csv
 
 *.key
+*.pem
+.env
+.venv/
+.ipynb_checkpoints/
 results/**/cache/
 results/*cache*
 *.log

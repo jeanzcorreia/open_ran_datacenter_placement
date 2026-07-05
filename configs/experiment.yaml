@@ -12,7 +12,7 @@ llm:
   generation:
     provider: groq
     base_url: https://api.groq.com/openai/v1
-    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/groq.key
+    api_key_file: configs/groq.key
     model: llama-3.3-70b-versatile
     tpm: 11000               # < 12000 real (margem); pacing por TOKENS (token bucket)
     rpm: 28                  # < 30 RPM
@@ -26,7 +26,7 @@ llm:
   reflection:
     provider: gemini
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_file: /l/disk0/jzanellac/Documentos/SML_LLM/gemini.key
+    api_key_file: configs/gemini.key
     # gemini-3-flash-preview dava 503 (overloaded) com frequência -> usar o GA estável gemini-2.5-flash.
     model: gemini-2.5-flash
     min_interval_sec: 5.0              # ~12 RPM
