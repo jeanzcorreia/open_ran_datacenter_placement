@@ -1,0 +1,3068 @@
+{
+  "split": {
+    "train": [
+      "Manaus",
+      "Natal",
+      "BeloHorizonte",
+      "Goiania",
+      "JoaoPessoa",
+      "CampoGrande"
+    ],
+    "test": [
+      "Curitiba",
+      "Recife",
+      "Florianopolis",
+      "Vitoria"
+    ],
+    "display_names": {
+      "Manaus": "Manaus",
+      "Natal": "Natal",
+      "BeloHorizonte": "Belo Horizonte",
+      "Goiania": "Goi\u00c3\u00a2nia",
+      "JoaoPessoa": "Jo\u00c3\u00a3o Pessoa",
+      "CampoGrande": "Campo Grande",
+      "Curitiba": "Curitiba",
+      "Recife": "Recife",
+      "Florianopolis": "Florian\u00c3\u00b3polis",
+      "Vitoria": "Vit\u00c3\u00b3ria"
+    }
+  },
+  "problem": {
+    "max_distance": 11.0,
+    "max_capacity": 1000.0,
+    "cpu_per_100mhz": 14
+  },
+  "config": {
+    "pop": 300,
+    "ngen": 60,
+    "baseline_seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sweep_max_points": 200,
+    "reevo": {
+      "pop_size": 8,
+      "generations": 6,
+      "elite": 2,
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "routing": "gemini-only(gen=2.5-flash, refl=2.5-flash-lite)",
+    "strong_seed": true
+  },
+  "reevo_seeds": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "best_seed": 1,
+  "provenance": {
+    "1": "seed",
+    "2": "seed_strong",
+    "3": "seed_strong",
+    "4": "seed"
+  },
+  "train_meta": {
+    "mode": "multi_city",
+    "train_cities": [
+      "Manaus_sites",
+      "Natal_sites",
+      "BeloHorizonte_sites",
+      "Goiania_sites",
+      "JoaoPessoa_sites",
+      "CampoGrande_sites"
+    ],
+    "pop_size": 8,
+    "generations": 6,
+    "elite": 2,
+    "total_offspring_evaluated": 48,
+    "best_origin": "seed",
+    "robust": true,
+    "train_mean_hv": 0.9067291385684769,
+    "train_maximin_hv": 0.7902684825570127,
+    "train_per_city": [
+      {
+        "name": "Manaus_sites",
+        "score": 0.9314379651428399,
+        "raw_score": 0.9314379651428399,
+        "n_valid": 9,
+        "n_crash": 0,
+        "ok": true
+      },
+      {
+        "name": "Natal_sites",
+        "score": 0.9305072796535199,
+        "raw_score": 0.9305072796535199,
+        "n_valid": 9,
+        "n_crash": 0,
+        "ok": true
+      },
+      {
+        "name": "BeloHorizonte_sites",
+        "score": 0.932069838971285,
+        "raw_score": 0.932069838971285,
+        "n_valid": 9,
+        "n_crash": 0,
+        "ok": true
+      },
+      {
+        "name": "Goiania_sites",
+        "score": 0.9279920639509337,
+        "raw_score": 0.9279920639509337,
+        "n_valid": 9,
+        "n_crash": 0,
+        "ok": true
+      },
+      {
+        "name": "JoaoPessoa_sites",
+        "score": 0.9280992011352708,
+        "raw_score": 0.9280992011352708,
+        "n_valid": 9,
+        "n_crash": 0,
+        "ok": true
+      },
+      {
+        "name": "CampoGrande_sites",
+        "score": 0.7902684825570127,
+        "raw_score": 0.7902684825570127,
+        "n_valid": 9,
+        "n_crash": 0,
+        "ok": true
+      }
+    ],
+    "agg_curve": [
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769
+    ],
+    "mean_hv_curve": [
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769,
+      0.9067291385684769
+    ],
+    "maximin_curve": [
+      0.7902684825570127,
+      0.7902684825570127,
+      0.7902684825570127,
+      0.7902684825570127,
+      0.7902684825570127,
+      0.7902684825570127,
+      0.7902684825570127
+    ],
+    "origin_curve": [
+      "seed",
+      "seed",
+      "seed",
+      "seed",
+      "seed",
+      "seed",
+      "seed"
+    ],
+    "n_robust_final_pop": 8,
+    "heuristic_code": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_clients, n_sites = instance.n_clients, instance.n_sites\n    \n    # Inicialize a lista de ODCs ativos\n    selected = []\n    \n    # Calcular a demanda total dos clientes por site\n    demand_per_site = np.zeros(n_sites)\n    for c in range(n_clients):\n        nearest_idx = D[c].argmin()\n        demand_per_site[nearest_idx] += instance.client_demand[c]\n    \n    # Ordenar sites pela capacidade dispon\u00edvel em ordem crescente\n    sorted_indices = np.argsort(demand_per_site)\n    \n    # Selecionar os n_active sites com menor carga\n    for i in range(n_active):\n        selected.append(sorted_indices[i])\n    \n    # Garantir que todos os clientes estejam cobertos e a capacidade n\u00e3o seja excedida\n    while len(selected) < n_active:\n        cur = D[:, selected].min(axis=1)\n        gain = (cur[:, None] - np.minimum(cur[:, None], D)).sum(axis=0)\n        gain[selected] = -1.0\n        new_site = int(np.argmax(gain))\n        if demand_per_site[new_site] + instance.client_demand[cur.argmin()] <= instance.max_capacity:\n            selected.append(new_site)\n            demand_per_site[new_site] += instance.client_demand[cur.argmin()]\n    \n    return selected[:n_active]",
+    "elapsed_sec": 417.84,
+    "llm_backend": "local(gen)+local(reflect)",
+    "llm_usage": {
+      "calls": 22,
+      "input_tokens": 36736,
+      "output_tokens": 8146,
+      "cache_read_tokens": 0,
+      "cost_usd": 0.0,
+      "by_model": {
+        "qwen2.5-coder:7b": {
+          "calls": 22,
+          "in": 36736,
+          "out": 8146,
+          "cost": 0.0
+        }
+      }
+    }
+  },
+  "per_seed_train_meta": {
+    "1": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "pop_size": 8,
+      "generations": 6,
+      "elite": 2,
+      "total_offspring_evaluated": 48,
+      "best_origin": "seed",
+      "robust": true,
+      "train_mean_hv": 0.9067291385684769,
+      "train_maximin_hv": 0.7902684825570127,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9314379651428399,
+          "raw_score": 0.9314379651428399,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9305072796535199,
+          "raw_score": 0.9305072796535199,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.932069838971285,
+          "raw_score": 0.932069838971285,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9279920639509337,
+          "raw_score": 0.9279920639509337,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9280992011352708,
+          "raw_score": 0.9280992011352708,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.7902684825570127,
+          "raw_score": 0.7902684825570127,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "agg_curve": [
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769
+      ],
+      "mean_hv_curve": [
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769,
+        0.9067291385684769
+      ],
+      "maximin_curve": [
+        0.7902684825570127,
+        0.7902684825570127,
+        0.7902684825570127,
+        0.7902684825570127,
+        0.7902684825570127,
+        0.7902684825570127,
+        0.7902684825570127
+      ],
+      "origin_curve": [
+        "seed",
+        "seed",
+        "seed",
+        "seed",
+        "seed",
+        "seed",
+        "seed"
+      ],
+      "n_robust_final_pop": 8,
+      "heuristic_code": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_clients, n_sites = instance.n_clients, instance.n_sites\n    \n    # Inicialize a lista de ODCs ativos\n    selected = []\n    \n    # Calcular a demanda total dos clientes por site\n    demand_per_site = np.zeros(n_sites)\n    for c in range(n_clients):\n        nearest_idx = D[c].argmin()\n        demand_per_site[nearest_idx] += instance.client_demand[c]\n    \n    # Ordenar sites pela capacidade dispon\u00edvel em ordem crescente\n    sorted_indices = np.argsort(demand_per_site)\n    \n    # Selecionar os n_active sites com menor carga\n    for i in range(n_active):\n        selected.append(sorted_indices[i])\n    \n    # Garantir que todos os clientes estejam cobertos e a capacidade n\u00e3o seja excedida\n    while len(selected) < n_active:\n        cur = D[:, selected].min(axis=1)\n        gain = (cur[:, None] - np.minimum(cur[:, None], D)).sum(axis=0)\n        gain[selected] = -1.0\n        new_site = int(np.argmax(gain))\n        if demand_per_site[new_site] + instance.client_demand[cur.argmin()] <= instance.max_capacity:\n            selected.append(new_site)\n            demand_per_site[new_site] += instance.client_demand[cur.argmin()]\n    \n    return selected[:n_active]",
+      "elapsed_sec": 417.84,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 22,
+        "input_tokens": 36736,
+        "output_tokens": 8146,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {
+          "qwen2.5-coder:7b": {
+            "calls": 22,
+            "in": 36736,
+            "out": 8146,
+            "cost": 0.0
+          }
+        }
+      }
+    },
+    "2": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "pop_size": 8,
+      "generations": 6,
+      "elite": 2,
+      "total_offspring_evaluated": 48,
+      "best_origin": "seed_strong",
+      "robust": true,
+      "train_mean_hv": 0.8341434861036215,
+      "train_maximin_hv": 0.3542156635728006,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9316519710641932,
+          "raw_score": 0.9316519710641932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9288365027149489,
+          "raw_score": 0.9288365027149489,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.9328267036171037,
+          "raw_score": 0.9328267036171037,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9290418352983905,
+          "raw_score": 0.9290418352983905,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9282882403542932,
+          "raw_score": 0.9282882403542932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.3542156635728006,
+          "raw_score": 0.3542156635728006,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "agg_curve": [
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215
+      ],
+      "mean_hv_curve": [
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215
+      ],
+      "maximin_curve": [
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006
+      ],
+      "origin_curve": [
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong"
+      ],
+      "n_robust_final_pop": 8,
+      "heuristic_code": "import numpy as np\ndef place_odcs(instance, n_active):\n    d = instance.distances.min(axis=0)               # dist. de cada site ao cliente mais pr\u00f3ximo\n    n = int(max(1, min(n_active, instance.n_sites)))\n    return list(np.argsort(d)[:n])                    # n_active sites de melhor cobertura\n",
+      "elapsed_sec": 570.82,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 60,
+        "input_tokens": 90200,
+        "output_tokens": 18139,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {
+          "qwen2.5-coder:7b": {
+            "calls": 60,
+            "in": 90200,
+            "out": 18139,
+            "cost": 0.0
+          }
+        }
+      }
+    },
+    "3": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "pop_size": 8,
+      "generations": 6,
+      "elite": 2,
+      "total_offspring_evaluated": 48,
+      "best_origin": "seed_strong",
+      "robust": true,
+      "train_mean_hv": 0.8341434861036215,
+      "train_maximin_hv": 0.3542156635728006,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9316519710641932,
+          "raw_score": 0.9316519710641932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9288365027149489,
+          "raw_score": 0.9288365027149489,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.9328267036171037,
+          "raw_score": 0.9328267036171037,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9290418352983905,
+          "raw_score": 0.9290418352983905,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9282882403542932,
+          "raw_score": 0.9282882403542932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.3542156635728006,
+          "raw_score": 0.3542156635728006,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "agg_curve": [
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215
+      ],
+      "mean_hv_curve": [
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215,
+        0.8341434861036215
+      ],
+      "maximin_curve": [
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006,
+        0.3542156635728006
+      ],
+      "origin_curve": [
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong",
+        "seed_strong"
+      ],
+      "n_robust_final_pop": 8,
+      "heuristic_code": "import numpy as np\ndef place_odcs(instance, n_active):\n    d = instance.distances.min(axis=0)               # dist. de cada site ao cliente mais pr\u00f3ximo\n    n = int(max(1, min(n_active, instance.n_sites)))\n    return list(np.argsort(d)[:n])                    # n_active sites de melhor cobertura\n",
+      "elapsed_sec": 872.54,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 99,
+        "input_tokens": 149586,
+        "output_tokens": 33133,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {
+          "qwen2.5-coder:7b": {
+            "calls": 99,
+            "in": 149586,
+            "out": 33133,
+            "cost": 0.0
+          }
+        }
+      }
+    },
+    "4": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "pop_size": 8,
+      "generations": 6,
+      "elite": 2,
+      "total_offspring_evaluated": 48,
+      "best_origin": "seed",
+      "robust": true,
+      "train_mean_hv": 0.8342293419244381,
+      "train_maximin_hv": 0.3541724766375087,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9318303640962963,
+          "raw_score": 0.9318303640962963,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9290238270473812,
+          "raw_score": 0.9290238270473812,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.9328287826456847,
+          "raw_score": 0.9328287826456847,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9293276723849122,
+          "raw_score": 0.9293276723849122,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9281929287348458,
+          "raw_score": 0.9281929287348458,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.3541724766375087,
+          "raw_score": 0.3541724766375087,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "agg_curve": [
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381
+      ],
+      "mean_hv_curve": [
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381,
+        0.8342293419244381
+      ],
+      "maximin_curve": [
+        0.3541724766375087,
+        0.3541724766375087,
+        0.3541724766375087,
+        0.3541724766375087,
+        0.3541724766375087,
+        0.3541724766375087,
+        0.3541724766375087
+      ],
+      "origin_curve": [
+        "seed",
+        "seed",
+        "seed",
+        "seed",
+        "seed",
+        "seed",
+        "seed"
+      ],
+      "n_robust_final_pop": 8,
+      "heuristic_code": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_sites = instance.n_sites\n    client_demand = instance.client_demand       # (n_clients,)\n    \n    # Inicializa a sele\u00e7\u00e3o com o site mais pr\u00f3ximo de cada cliente\n    nearest_idx = D.argmin(axis=1)                # (n_clients,) \u00edndices dos sites mais pr\u00f3ximos\n    selected = np.unique(nearest_idx)\n    \n    while len(selected) < n_active:\n        # Calcula a carga por ODC selecionado\n        load = np.zeros(n_sites)\n        np.add.at(load, nearest_idx, client_demand)\n        \n        # Identifica os ODCs sobrecarregados\n        overloaded_odcs = np.where(load > instance.max_capacity)[0]\n        \n        if len(overloaded_odcs) == 0:\n            break\n        \n        # Calcula a melhoria potencial em cada site n\u00e3o selecionado\n        gain = np.zeros(n_sites)\n        for s in range(n_sites):\n            if s not in selected:\n                new_nearest_idx = D[:, s].argmin()\n                new_nearest_dist = D[new_nearest_idx, s]\n                if new_nearest_dist <= instance.max_distance:\n                    gain[s] = (new_nearest_dist - nearest_dist[nearest_idx == new_nearest_idx]).sum()\n        \n        # Seleciona o site com a maior melhoria potencial\n        next_site = np.argmax(gain)\n        selected = np.unique(np.append(selected, next_site))\n    \n    return selected[:n_active]",
+      "elapsed_sec": 631.02,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 128,
+        "input_tokens": 195700,
+        "output_tokens": 42612,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {
+          "qwen2.5-coder:7b": {
+            "calls": 128,
+            "in": 195700,
+            "out": 42612,
+            "cost": 0.0
+          }
+        }
+      }
+    }
+  },
+  "zero_shot_meta": {
+    "1": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "n_samples": 8,
+      "best_origin": "zero_shot",
+      "robust": true,
+      "train_mean_hv": 0.9067291385684769,
+      "train_maximin_hv": 0.7902684825570127,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9314379651428399,
+          "raw_score": 0.9314379651428399,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9305072796535199,
+          "raw_score": 0.9305072796535199,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.932069838971285,
+          "raw_score": 0.932069838971285,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9279920639509337,
+          "raw_score": 0.9279920639509337,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9280992011352708,
+          "raw_score": 0.9280992011352708,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.7902684825570127,
+          "raw_score": 0.7902684825570127,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "heuristic_code": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_clients, n_sites = instance.n_clients, instance.n_sites\n    \n    # Inicialize a lista de ODCs ativos\n    selected = []\n    \n    # Calcular a demanda total dos clientes por site\n    demand_per_site = np.zeros(n_sites)\n    for c in range(n_clients):\n        nearest_idx = D[c].argmin()\n        demand_per_site[nearest_idx] += instance.client_demand[c]\n    \n    # Ordenar sites pela capacidade dispon\u00edvel em ordem crescente\n    sorted_indices = np.argsort(demand_per_site)\n    \n    # Selecionar os n_active sites com menor carga\n    for i in range(n_active):\n        selected.append(sorted_indices[i])\n    \n    # Garantir que todos os clientes estejam cobertos e a capacidade n\u00e3o seja excedida\n    while len(selected) < n_active:\n        cur = D[:, selected].min(axis=1)\n        gain = (cur[:, None] - np.minimum(cur[:, None], D)).sum(axis=0)\n        gain[selected] = -1.0\n        new_site = int(np.argmax(gain))\n        if demand_per_site[new_site] + instance.client_demand[cur.argmin()] <= instance.max_capacity:\n            selected.append(new_site)\n            demand_per_site[new_site] += instance.client_demand[cur.argmin()]\n    \n    return selected[:n_active]",
+      "elapsed_sec": 17.92,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {}
+      }
+    },
+    "2": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "n_samples": 8,
+      "best_origin": "seed_strong",
+      "robust": true,
+      "train_mean_hv": 0.8341434861036215,
+      "train_maximin_hv": 0.3542156635728006,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9316519710641932,
+          "raw_score": 0.9316519710641932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9288365027149489,
+          "raw_score": 0.9288365027149489,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.9328267036171037,
+          "raw_score": 0.9328267036171037,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9290418352983905,
+          "raw_score": 0.9290418352983905,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9282882403542932,
+          "raw_score": 0.9282882403542932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.3542156635728006,
+          "raw_score": 0.3542156635728006,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "heuristic_code": "import numpy as np\ndef place_odcs(instance, n_active):\n    d = instance.distances.min(axis=0)               # dist. de cada site ao cliente mais pr\u00f3ximo\n    n = int(max(1, min(n_active, instance.n_sites)))\n    return list(np.argsort(d)[:n])                    # n_active sites de melhor cobertura\n",
+      "elapsed_sec": 11.26,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {}
+      }
+    },
+    "3": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "n_samples": 8,
+      "best_origin": "seed_strong",
+      "robust": true,
+      "train_mean_hv": 0.8341434861036215,
+      "train_maximin_hv": 0.3542156635728006,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9316519710641932,
+          "raw_score": 0.9316519710641932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9288365027149489,
+          "raw_score": 0.9288365027149489,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.9328267036171037,
+          "raw_score": 0.9328267036171037,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9290418352983905,
+          "raw_score": 0.9290418352983905,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9282882403542932,
+          "raw_score": 0.9282882403542932,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.3542156635728006,
+          "raw_score": 0.3542156635728006,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "heuristic_code": "import numpy as np\ndef place_odcs(instance, n_active):\n    d = instance.distances.min(axis=0)               # dist. de cada site ao cliente mais pr\u00f3ximo\n    n = int(max(1, min(n_active, instance.n_sites)))\n    return list(np.argsort(d)[:n])                    # n_active sites de melhor cobertura\n",
+      "elapsed_sec": 11.25,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {}
+      }
+    },
+    "4": {
+      "mode": "multi_city",
+      "train_cities": [
+        "Manaus_sites",
+        "Natal_sites",
+        "BeloHorizonte_sites",
+        "Goiania_sites",
+        "JoaoPessoa_sites",
+        "CampoGrande_sites"
+      ],
+      "n_samples": 8,
+      "best_origin": "zero_shot",
+      "robust": true,
+      "train_mean_hv": 0.8342293419244381,
+      "train_maximin_hv": 0.3541724766375087,
+      "train_per_city": [
+        {
+          "name": "Manaus_sites",
+          "score": 0.9318303640962963,
+          "raw_score": 0.9318303640962963,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Natal_sites",
+          "score": 0.9290238270473812,
+          "raw_score": 0.9290238270473812,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "BeloHorizonte_sites",
+          "score": 0.9328287826456847,
+          "raw_score": 0.9328287826456847,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "Goiania_sites",
+          "score": 0.9293276723849122,
+          "raw_score": 0.9293276723849122,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "JoaoPessoa_sites",
+          "score": 0.9281929287348458,
+          "raw_score": 0.9281929287348458,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        },
+        {
+          "name": "CampoGrande_sites",
+          "score": 0.3541724766375087,
+          "raw_score": 0.3541724766375087,
+          "n_valid": 9,
+          "n_crash": 0,
+          "ok": true
+        }
+      ],
+      "heuristic_code": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_sites = instance.n_sites\n    client_demand = instance.client_demand       # (n_clients,)\n    \n    # Inicializa a sele\u00e7\u00e3o com o site mais pr\u00f3ximo de cada cliente\n    nearest_idx = D.argmin(axis=1)                # (n_clients,) \u00edndices dos sites mais pr\u00f3ximos\n    selected = np.unique(nearest_idx)\n    \n    while len(selected) < n_active:\n        # Calcula a carga por ODC selecionado\n        load = np.zeros(n_sites)\n        np.add.at(load, nearest_idx, client_demand)\n        \n        # Identifica os ODCs sobrecarregados\n        overloaded_odcs = np.where(load > instance.max_capacity)[0]\n        \n        if len(overloaded_odcs) == 0:\n            break\n        \n        # Calcula a melhoria potencial em cada site n\u00e3o selecionado\n        gain = np.zeros(n_sites)\n        for s in range(n_sites):\n            if s not in selected:\n                new_nearest_idx = D[:, s].argmin()\n                new_nearest_dist = D[new_nearest_idx, s]\n                if new_nearest_dist <= instance.max_distance:\n                    gain[s] = (new_nearest_dist - nearest_dist[nearest_idx == new_nearest_idx]).sum()\n        \n        # Seleciona o site com a maior melhoria potencial\n        next_site = np.argmax(gain)\n        selected = np.unique(np.append(selected, next_site))\n    \n    return selected[:n_active]",
+      "elapsed_sec": 21.36,
+      "llm_backend": "local(gen)+local(reflect)",
+      "llm_usage": {
+        "calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {}
+      }
+    }
+  },
+  "winner_code": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_clients, n_sites = instance.n_clients, instance.n_sites\n    \n    # Inicialize a lista de ODCs ativos\n    selected = []\n    \n    # Calcular a demanda total dos clientes por site\n    demand_per_site = np.zeros(n_sites)\n    for c in range(n_clients):\n        nearest_idx = D[c].argmin()\n        demand_per_site[nearest_idx] += instance.client_demand[c]\n    \n    # Ordenar sites pela capacidade dispon\u00edvel em ordem crescente\n    sorted_indices = np.argsort(demand_per_site)\n    \n    # Selecionar os n_active sites com menor carga\n    for i in range(n_active):\n        selected.append(sorted_indices[i])\n    \n    # Garantir que todos os clientes estejam cobertos e a capacidade n\u00e3o seja excedida\n    while len(selected) < n_active:\n        cur = D[:, selected].min(axis=1)\n        gain = (cur[:, None] - np.minimum(cur[:, None], D)).sum(axis=0)\n        gain[selected] = -1.0\n        new_site = int(np.argmax(gain))\n        if demand_per_site[new_site] + instance.client_demand[cur.argmin()] <= instance.max_capacity:\n            selected.append(new_site)\n            demand_per_site[new_site] += instance.client_demand[cur.argmin()]\n    \n    return selected[:n_active]",
+  "per_seed_winner_code": {
+    "1": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_clients, n_sites = instance.n_clients, instance.n_sites\n    \n    # Inicialize a lista de ODCs ativos\n    selected = []\n    \n    # Calcular a demanda total dos clientes por site\n    demand_per_site = np.zeros(n_sites)\n    for c in range(n_clients):\n        nearest_idx = D[c].argmin()\n        demand_per_site[nearest_idx] += instance.client_demand[c]\n    \n    # Ordenar sites pela capacidade dispon\u00edvel em ordem crescente\n    sorted_indices = np.argsort(demand_per_site)\n    \n    # Selecionar os n_active sites com menor carga\n    for i in range(n_active):\n        selected.append(sorted_indices[i])\n    \n    # Garantir que todos os clientes estejam cobertos e a capacidade n\u00e3o seja excedida\n    while len(selected) < n_active:\n        cur = D[:, selected].min(axis=1)\n        gain = (cur[:, None] - np.minimum(cur[:, None], D)).sum(axis=0)\n        gain[selected] = -1.0\n        new_site = int(np.argmax(gain))\n        if demand_per_site[new_site] + instance.client_demand[cur.argmin()] <= instance.max_capacity:\n            selected.append(new_site)\n            demand_per_site[new_site] += instance.client_demand[cur.argmin()]\n    \n    return selected[:n_active]",
+    "2": "import numpy as np\ndef place_odcs(instance, n_active):\n    d = instance.distances.min(axis=0)               # dist. de cada site ao cliente mais pr\u00f3ximo\n    n = int(max(1, min(n_active, instance.n_sites)))\n    return list(np.argsort(d)[:n])                    # n_active sites de melhor cobertura\n",
+    "3": "import numpy as np\ndef place_odcs(instance, n_active):\n    d = instance.distances.min(axis=0)               # dist. de cada site ao cliente mais pr\u00f3ximo\n    n = int(max(1, min(n_active, instance.n_sites)))\n    return list(np.argsort(d)[:n])                    # n_active sites de melhor cobertura\n",
+    "4": "import numpy as np\n\ndef place_odcs(instance, n_active):\n    D = instance.distances                       # (n_clients, n_sites)\n    n_sites = instance.n_sites\n    client_demand = instance.client_demand       # (n_clients,)\n    \n    # Inicializa a sele\u00e7\u00e3o com o site mais pr\u00f3ximo de cada cliente\n    nearest_idx = D.argmin(axis=1)                # (n_clients,) \u00edndices dos sites mais pr\u00f3ximos\n    selected = np.unique(nearest_idx)\n    \n    while len(selected) < n_active:\n        # Calcula a carga por ODC selecionado\n        load = np.zeros(n_sites)\n        np.add.at(load, nearest_idx, client_demand)\n        \n        # Identifica os ODCs sobrecarregados\n        overloaded_odcs = np.where(load > instance.max_capacity)[0]\n        \n        if len(overloaded_odcs) == 0:\n            break\n        \n        # Calcula a melhoria potencial em cada site n\u00e3o selecionado\n        gain = np.zeros(n_sites)\n        for s in range(n_sites):\n            if s not in selected:\n                new_nearest_idx = D[:, s].argmin()\n                new_nearest_dist = D[new_nearest_idx, s]\n                if new_nearest_dist <= instance.max_distance:\n                    gain[s] = (new_nearest_dist - nearest_dist[nearest_idx == new_nearest_idx]).sum()\n        \n        # Seleciona o site com a maior melhoria potencial\n        next_site = np.argmax(gain)\n        selected = np.unique(np.append(selected, next_site))\n    \n    return selected[:n_active]"
+  },
+  "winner_apply": {
+    "Manaus": [
+      {
+        "seed": 1,
+        "n_crash": 103,
+        "n_feasible": 89,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 189,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 189,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 184,
+        "origin": "seed"
+      }
+    ],
+    "Natal": [
+      {
+        "seed": 1,
+        "n_crash": 0,
+        "n_feasible": 192,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 198,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 198,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 189,
+        "origin": "seed"
+      }
+    ],
+    "BeloHorizonte": [
+      {
+        "seed": 1,
+        "n_crash": 197,
+        "n_feasible": 3,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 193,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 193,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 190,
+        "origin": "seed"
+      }
+    ],
+    "Goiania": [
+      {
+        "seed": 1,
+        "n_crash": 78,
+        "n_feasible": 117,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 192,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 192,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 186,
+        "origin": "seed"
+      }
+    ],
+    "JoaoPessoa": [
+      {
+        "seed": 1,
+        "n_crash": 0,
+        "n_feasible": 191,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 195,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 195,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 194,
+        "origin": "seed"
+      }
+    ],
+    "CampoGrande": [
+      {
+        "seed": 1,
+        "n_crash": 0,
+        "n_feasible": 164,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 76,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 76,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 77,
+        "origin": "seed"
+      }
+    ],
+    "Curitiba": [
+      {
+        "seed": 1,
+        "n_crash": 196,
+        "n_feasible": 4,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 194,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 194,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 189,
+        "origin": "seed"
+      }
+    ],
+    "Recife": [
+      {
+        "seed": 1,
+        "n_crash": 0,
+        "n_feasible": 196,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 197,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 197,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 191,
+        "origin": "seed"
+      }
+    ],
+    "Florianopolis": [
+      {
+        "seed": 1,
+        "n_crash": 0,
+        "n_feasible": 191,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 191,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 191,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 181,
+        "origin": "seed"
+      }
+    ],
+    "Vitoria": [
+      {
+        "seed": 1,
+        "n_crash": 0,
+        "n_feasible": 194,
+        "origin": "seed"
+      },
+      {
+        "seed": 2,
+        "n_crash": 0,
+        "n_feasible": 193,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 3,
+        "n_crash": 0,
+        "n_feasible": 193,
+        "origin": "seed_strong"
+      },
+      {
+        "seed": 4,
+        "n_crash": 0,
+        "n_feasible": 195,
+        "origin": "seed"
+      }
+    ]
+  },
+  "all_winner_feasible_no_crash": false,
+  "city_metrics": {
+    "Manaus": {
+      "nsga2": {
+        "HV": [
+          0.8135602413412798,
+          0.006115169855837564
+        ],
+        "IGDp": [
+          0.09475583998952425,
+          0.0025939006848665295
+        ],
+        "spacing": [
+          0.0035101518553682354,
+          0.0009443163515308122
+        ],
+        "spread": [
+          0.877751380818989,
+          0.014804040754113174
+        ],
+        "n": [
+          72.2,
+          6.822411819877189
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.7703816220293662,
+          0.008044583578487498
+        ],
+        "IGDp": [
+          0.11417252233216868,
+          0.003419585000327343
+        ],
+        "spacing": [
+          0.006456911791041695,
+          0.002498086057144634
+        ],
+        "spread": [
+          0.9142252690680536,
+          0.014809581844355844
+        ],
+        "n": [
+          32.6,
+          3.682780167210635
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.7622419323569982,
+          0.01033059149204848
+        ],
+        "IGDp": [
+          0.15499092497125394,
+          0.005616992324084169
+        ],
+        "spacing": [
+          0.09167546440962368,
+          0.0072477455676697895
+        ],
+        "spread": [
+          1.070484413521242,
+          0.01541291639214781
+        ],
+        "n": [
+          15.4,
+          3.23734449201811
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0693997777006374,
+          0.0
+        ],
+        "IGDp": [
+          1.2848578178092607e-10,
+          0.0
+        ],
+        "spacing": [
+          0.0019600784487357613,
+          0.0
+        ],
+        "spread": [
+          0.5507869626538593,
+          0.0
+        ],
+        "n": [
+          942.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.6561506817073827,
+          0.0058973510211684
+        ],
+        "IGDp": [
+          0.16281021741447457,
+          0.0018092222427943338
+        ],
+        "spacing": [
+          0.007379588814699549,
+          0.0027471139456641024
+        ],
+        "spread": [
+          0.9490924733910914,
+          0.006512110652224508
+        ],
+        "n": [
+          20.0,
+          5.19342045284223
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.9356705954616827,
+          0.014318854385853319
+        ],
+        "IGDp": [
+          0.08382461644669571,
+          0.011766189032367128
+        ],
+        "spacing": [
+          0.00877040851461842,
+          0.005022694656044456
+        ],
+        "spread": [
+          0.5453401367225525,
+          0.10026945057516883
+        ],
+        "n": [
+          162.75,
+          78.31400208721725
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9353418230837414,
+          0.015340142189350179
+        ],
+        "IGDp": [
+          0.08374440539899708,
+          0.011517449588203934
+        ],
+        "spacing": [
+          0.007383285615109009,
+          0.0020477859725756696
+        ],
+        "spread": [
+          0.5421190873754598,
+          0.09239165114840227
+        ],
+        "n": [
+          166.75,
+          65.60343375350105
+        ]
+      }
+    },
+    "Natal": {
+      "nsga2": {
+        "HV": [
+          0.9154783032911802,
+          0.018517284175429496
+        ],
+        "IGDp": [
+          0.053328628383361096,
+          0.004555788651649272
+        ],
+        "spacing": [
+          0.004162370659118,
+          0.0012524561054011042
+        ],
+        "spread": [
+          0.8425958721882292,
+          0.01130515858280012
+        ],
+        "n": [
+          71.4,
+          11.296648819893445
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.8633802489634672,
+          0.00876888758808045
+        ],
+        "IGDp": [
+          0.06940140653738942,
+          0.0040309904366131934
+        ],
+        "spacing": [
+          0.00704884087778201,
+          0.002782910189642024
+        ],
+        "spread": [
+          0.8899206065320889,
+          0.005423948788229647
+        ],
+        "n": [
+          38.8,
+          8.064745838524608
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.8622474217574176,
+          0.01921038243753802
+        ],
+        "IGDp": [
+          0.1031279308315544,
+          0.008251955923844066
+        ],
+        "spacing": [
+          0.06729945698776175,
+          0.014767755997743989
+        ],
+        "spread": [
+          1.0258541365228926,
+          0.01681857014908151
+        ],
+        "n": [
+          17.2,
+          1.3599567051932202
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0923920279562285,
+          0.0
+        ],
+        "IGDp": [
+          9.675362200804765e-11,
+          0.0
+        ],
+        "spacing": [
+          0.005321035498325268,
+          0.0
+        ],
+        "spread": [
+          0.6062117099134321,
+          0.0
+        ],
+        "n": [
+          435.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.7080007796960542,
+          0.007621598814555253
+        ],
+        "IGDp": [
+          0.12597182419872183,
+          0.002328153937819704
+        ],
+        "spacing": [
+          0.0055115179475526115,
+          0.001253549272973115
+        ],
+        "spread": [
+          0.9371219990825621,
+          0.019172028415826253
+        ],
+        "n": [
+          27.4,
+          4.934725540493614
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.9903226949086439,
+          0.02508006448572537
+        ],
+        "IGDp": [
+          0.06480549198732727,
+          0.01326527233643088
+        ],
+        "spacing": [
+          0.007016658801350031,
+          0.003288615271583056
+        ],
+        "spread": [
+          0.6088424667300448,
+          0.11813375536469285
+        ],
+        "n": [
+          194.25,
+          7.1594999999999995
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9903226949086439,
+          0.02508006448572537
+        ],
+        "IGDp": [
+          0.06480549198732727,
+          0.01326527233643088
+        ],
+        "spacing": [
+          0.007016658801350031,
+          0.003288615271583056
+        ],
+        "spread": [
+          0.6088424667300448,
+          0.11813375536469285
+        ],
+        "n": [
+          194.25,
+          7.1594999999999995
+        ]
+      }
+    },
+    "BeloHorizonte": {
+      "nsga2": {
+        "HV": [
+          0.8162680592299273,
+          0.015479234715520603
+        ],
+        "IGDp": [
+          0.0868903481135802,
+          0.0033750404701166845
+        ],
+        "spacing": [
+          0.002949115323599712,
+          0.0007902520035510541
+        ],
+        "spread": [
+          0.8952269214409293,
+          0.01967684360548024
+        ],
+        "n": [
+          69.6,
+          5.012198495670337
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.7781539877532545,
+          0.0037916873345861246
+        ],
+        "IGDp": [
+          0.10433584257816145,
+          0.0008198963498241188
+        ],
+        "spacing": [
+          0.005399645021780142,
+          0.0011916630109813232
+        ],
+        "spread": [
+          0.9298086092847111,
+          0.016459923699327642
+        ],
+        "n": [
+          32.8,
+          3.444925404127061
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.7938162686378877,
+          0.011499568426424515
+        ],
+        "IGDp": [
+          0.125727500742097,
+          0.0031664053453227393
+        ],
+        "spacing": [
+          0.10106286789646032,
+          0.016377266088793366
+        ],
+        "spread": [
+          1.09294441947259,
+          0.017519369487557772
+        ],
+        "n": [
+          11.6,
+          1.882774803315574
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0926556257251254,
+          0.0
+        ],
+        "IGDp": [
+          1.2051067948526071e-10,
+          0.0
+        ],
+        "spacing": [
+          0.0021366553335819124,
+          0.0
+        ],
+        "spread": [
+          0.5961906908772813,
+          0.0
+        ],
+        "n": [
+          1066.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.6703477306853095,
+          0.007950524651635945
+        ],
+        "IGDp": [
+          0.14784617096418146,
+          0.0034165065083223284
+        ],
+        "spacing": [
+          0.004412704258797894,
+          0.0015235993728167786
+        ],
+        "spread": [
+          0.9535349801890861,
+          0.006679862572444536
+        ],
+        "n": [
+          26.0,
+          3.511393113850968
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.7940136461989602,
+          0.6225793977277001
+        ],
+        "IGDp": [
+          0.15165626399553284,
+          0.27966982172621374
+        ],
+        "spacing": [
+          0.006239042047702061,
+          0.006214846001459492
+        ],
+        "spread": [
+          0.6787455743321705,
+          0.334200933671509
+        ],
+        "n": [
+          144.75,
+          150.36633503630392
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.8688064799069386,
+          0.38459036547703024
+        ],
+        "IGDp": [
+          0.10442418413249932,
+          0.12937735212214174
+        ],
+        "spacing": [
+          0.00812916185832383,
+          0.0029945116557038086
+        ],
+        "spread": [
+          0.5741241025898521,
+          0.056219562521365625
+        ],
+        "n": [
+          144.25,
+          151.95715877262907
+        ]
+      }
+    },
+    "Goiania": {
+      "nsga2": {
+        "HV": [
+          0.839892291313791,
+          0.006658539787611522
+        ],
+        "IGDp": [
+          0.08237707019735327,
+          0.0021642489879658763
+        ],
+        "spacing": [
+          0.0034443097025839363,
+          0.0007346238155716427
+        ],
+        "spread": [
+          0.8573632640127267,
+          0.020161949573199583
+        ],
+        "n": [
+          70.4,
+          5.992560401030598
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.8048361655888442,
+          0.010265985621431807
+        ],
+        "IGDp": [
+          0.09653820362878866,
+          0.0029279464460670386
+        ],
+        "spacing": [
+          0.00629346833843254,
+          0.002513583582634484
+        ],
+        "spread": [
+          0.9049675208853012,
+          0.012881546410470686
+        ],
+        "n": [
+          33.8,
+          1.3599567051932202
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.7934234041165764,
+          0.01262982547070257
+        ],
+        "IGDp": [
+          0.1405054204766672,
+          0.009735200091399769
+        ],
+        "spacing": [
+          0.07996747041711287,
+          0.004909844827473283
+        ],
+        "spread": [
+          1.0572330915946802,
+          0.02017483321025844
+        ],
+        "n": [
+          17.2,
+          1.038684090568446
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0748516831868355,
+          0.0
+        ],
+        "IGDp": [
+          8.871095115000942e-11,
+          0.0
+        ],
+        "spacing": [
+          0.002826385292430138,
+          0.0
+        ],
+        "spread": [
+          0.5594872089453934,
+          0.0
+        ],
+        "n": [
+          679.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.670060514235887,
+          0.005535309523593387
+        ],
+        "IGDp": [
+          0.15341576524710723,
+          0.0019279472008961157
+        ],
+        "spacing": [
+          0.008873652178935149,
+          0.005430131461270817
+        ],
+        "spread": [
+          0.9426348063569598,
+          0.01755956380620366
+        ],
+        "n": [
+          22.0,
+          5.552
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.9478938959157204,
+          0.022025604942311833
+        ],
+        "IGDp": [
+          0.07947400213777345,
+          0.021242577763555662
+        ],
+        "spacing": [
+          0.006773054791106807,
+          0.0025538948440605716
+        ],
+        "spread": [
+          0.569965685267137,
+          0.07707954500490026
+        ],
+        "n": [
+          171.75,
+          58.24559520040979
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9475655822877724,
+          0.02306556205160061
+        ],
+        "IGDp": [
+          0.07944654946126185,
+          0.02115607741178643
+        ],
+        "spacing": [
+          0.006575913908062611,
+          0.0019760045518908325
+        ],
+        "spread": [
+          0.5748607842747434,
+          0.09262924446013802
+        ],
+        "n": [
+          176.0,
+          44.77470884327445
+        ]
+      }
+    },
+    "JoaoPessoa": {
+      "nsga2": {
+        "HV": [
+          0.9287119691774095,
+          0.019228181952280574
+        ],
+        "IGDp": [
+          0.047223383377781834,
+          0.004104569097737445
+        ],
+        "spacing": [
+          0.003394668157081556,
+          0.0010242444596291176
+        ],
+        "spread": [
+          0.8373630660722255,
+          0.020590248228749174
+        ],
+        "n": [
+          76.8,
+          8.346486149272637
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.8797944964695287,
+          0.021363536522746186
+        ],
+        "IGDp": [
+          0.06174263987923828,
+          0.005605435432276167
+        ],
+        "spacing": [
+          0.007950554212532242,
+          0.0013859795576243973
+        ],
+        "spread": [
+          0.8885213400910349,
+          0.015382617202225774
+        ],
+        "n": [
+          34.2,
+          8.83971858375593
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.8804263566817696,
+          0.026515404439237753
+        ],
+        "IGDp": [
+          0.09532398419470425,
+          0.002899766143089297
+        ],
+        "spacing": [
+          0.06785646048959845,
+          0.007287985364859497
+        ],
+        "spread": [
+          1.0216026213552099,
+          0.020347607855189877
+        ],
+        "n": [
+          18.0,
+          2.776
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.099228895277169,
+          0.0
+        ],
+        "IGDp": [
+          8.037288034207361e-11,
+          0.0
+        ],
+        "spacing": [
+          0.0062452328278751424,
+          0.0
+        ],
+        "spread": [
+          0.620659330801041,
+          0.0
+        ],
+        "n": [
+          399.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.7236361634323912,
+          0.008424974527920225
+        ],
+        "IGDp": [
+          0.11830468541665957,
+          0.0038757952808019195
+        ],
+        "spacing": [
+          0.006135109175038588,
+          0.0017130847545824
+        ],
+        "spread": [
+          0.9255064729551714,
+          0.011756961788529797
+        ],
+        "n": [
+          26.0,
+          6.1449379492391945
+        ]
+      },
+      "reevo": {
+        "HV": [
+          1.0166955970318563,
+          0.0055076486827526
+        ],
+        "IGDp": [
+          0.05226928503073027,
+          0.000907531786113595
+        ],
+        "spacing": [
+          0.0180129657907423,
+          0.017787862490502723
+        ],
+        "spread": [
+          0.6955252747001801,
+          0.1128929536080391
+        ],
+        "n": [
+          193.75,
+          3.011714392722745
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          1.0166955970318563,
+          0.0055076486827526
+        ],
+        "IGDp": [
+          0.05226928503073027,
+          0.000907531786113595
+        ],
+        "spacing": [
+          0.0180129657907423,
+          0.017787862490502723
+        ],
+        "spread": [
+          0.6955252747001801,
+          0.1128929536080391
+        ],
+        "n": [
+          193.75,
+          3.011714392722745
+        ]
+      }
+    },
+    "CampoGrande": {
+      "nsga2": {
+        "HV": [
+          0.8889093479638444,
+          0.015280704755619625
+        ],
+        "IGDp": [
+          0.06824733354532277,
+          0.0032646294146196878
+        ],
+        "spacing": [
+          0.005077367097394636,
+          0.00140315413650875
+        ],
+        "spread": [
+          0.7821010376820062,
+          0.017344578459885452
+        ],
+        "n": [
+          75.8,
+          4.154736362273784
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.8307155486454662,
+          0.011480600786601158
+        ],
+        "IGDp": [
+          0.08997056876586955,
+          0.0057386529697581205
+        ],
+        "spacing": [
+          0.010603916958246104,
+          0.006222656989811449
+        ],
+        "spread": [
+          0.8384168848963487,
+          0.02905268793870677
+        ],
+        "n": [
+          37.4,
+          8.21620969547394
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.769262646257116,
+          0.01971060649015005
+        ],
+        "IGDp": [
+          0.1718980230899297,
+          0.012800729865959336
+        ],
+        "spacing": [
+          0.05474325250042358,
+          0.017683921760193087
+        ],
+        "spread": [
+          0.928357861339926,
+          0.03758478116976341
+        ],
+        "n": [
+          20.8,
+          2.2207999999999997
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0410878920971256,
+          0.0
+        ],
+        "IGDp": [
+          1.0819827212802892e-10,
+          0.0
+        ],
+        "spacing": [
+          0.0038494398392915213,
+          0.0
+        ],
+        "spread": [
+          0.4952229840481311,
+          0.0
+        ],
+        "n": [
+          391.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.6753736255780012,
+          0.008641775553432466
+        ],
+        "IGDp": [
+          0.15946052647440542,
+          0.005298671487677652
+        ],
+        "spacing": [
+          0.010699275253514148,
+          0.0036598437513214416
+        ],
+        "spread": [
+          0.9142941842291064,
+          0.007294661094516922
+        ],
+        "n": [
+          23.0,
+          4.561433458903022
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.5891655198767923,
+          0.2682325663504858
+        ],
+        "IGDp": [
+          0.19979313261435244,
+          0.08794026888003638
+        ],
+        "spacing": [
+          0.0027624048671836443,
+          0.002116593568931644
+        ],
+        "spread": [
+          0.6929128606492453,
+          0.2168125268909099
+        ],
+        "n": [
+          98.25,
+          69.74286616983369
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.5891655198767923,
+          0.2682325663504858
+        ],
+        "IGDp": [
+          0.19979313261435244,
+          0.08794026888003638
+        ],
+        "spacing": [
+          0.0027624048671836443,
+          0.002116593568931644
+        ],
+        "spread": [
+          0.6929128606492453,
+          0.2168125268909099
+        ],
+        "n": [
+          98.25,
+          69.74286616983369
+        ]
+      }
+    },
+    "Curitiba": {
+      "nsga2": {
+        "HV": [
+          0.8661526382371724,
+          0.013055058290631923
+        ],
+        "IGDp": [
+          0.06747016302518863,
+          0.0031342526690395123
+        ],
+        "spacing": [
+          0.0025605810236872632,
+          0.000347807564762589
+        ],
+        "spread": [
+          0.9109193226113028,
+          0.02019322754395973
+        ],
+        "n": [
+          70.8,
+          11.048340501631907
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.8242557495875044,
+          0.010451124710455395
+        ],
+        "IGDp": [
+          0.08056425208332549,
+          0.003925881298507553
+        ],
+        "spacing": [
+          0.006819339451434885,
+          0.0033443030682492286
+        ],
+        "spread": [
+          0.9372830969383786,
+          0.011350959050268518
+        ],
+        "n": [
+          30.8,
+          3.765549606631148
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.839875554333617,
+          0.01443932852507429
+        ],
+        "IGDp": [
+          0.10108247052556554,
+          0.005869122488835714
+        ],
+        "spacing": [
+          0.07676039482790945,
+          0.008270204547785901
+        ],
+        "spread": [
+          1.0602347057070403,
+          0.014529895373147228
+        ],
+        "n": [
+          12.0,
+          1.520477819634341
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.1264845481038797,
+          0.0
+        ],
+        "IGDp": [
+          3.6670862008684254e-05,
+          0.0
+        ],
+        "spacing": [
+          0.0009989644474115457,
+          0.0
+        ],
+        "spread": [
+          0.5043568909223929,
+          0.0
+        ],
+        "n": [
+          896.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.7032833212300081,
+          0.014134954449567035
+        ],
+        "IGDp": [
+          0.12354563453227414,
+          0.004674888875783346
+        ],
+        "spacing": [
+          0.004462366041214731,
+          0.002855143989359525
+        ],
+        "spread": [
+          0.9543573328504099,
+          0.011451267514829696
+        ],
+        "n": [
+          23.6,
+          4.527518985051305
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.8577747411931841,
+          0.6192989291260168
+        ],
+        "IGDp": [
+          0.1321838530015672,
+          0.23728012501711046
+        ],
+        "spacing": [
+          0.009067206009149894,
+          0.009957012179949725
+        ],
+        "spread": [
+          0.6472574373045271,
+          0.36656394764439615
+        ],
+        "n": [
+          145.25,
+          149.8660914714088
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9931729191383868,
+          0.18846989336460052
+        ],
+        "IGDp": [
+          0.07402456825621065,
+          0.05229089357464351
+        ],
+        "spacing": [
+          0.04936017405124833,
+          0.12345133196805251
+        ],
+        "spread": [
+          0.6286178520541318,
+          0.30828155827896897
+        ],
+        "n": [
+          145.0,
+          150.66134370611906
+        ]
+      }
+    },
+    "Recife": {
+      "nsga2": {
+        "HV": [
+          0.8649226321770287,
+          0.015677838559409605
+        ],
+        "IGDp": [
+          0.0699064986993269,
+          0.004626436616449347
+        ],
+        "spacing": [
+          0.0030939583969627478,
+          0.0003514261119923048
+        ],
+        "spread": [
+          0.8814162846539622,
+          0.018381597830889364
+        ],
+        "n": [
+          75.2,
+          12.94342559912174
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.8169234455474333,
+          0.0034379201315519873
+        ],
+        "IGDp": [
+          0.08468048592783697,
+          0.0013161776089483227
+        ],
+        "spacing": [
+          0.00654877298855925,
+          0.0030275001561675978
+        ],
+        "spread": [
+          0.9264386140897543,
+          0.019219291767380308
+        ],
+        "n": [
+          33.0,
+          4.88765236079654
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.8274995333764104,
+          0.0059733128999230455
+        ],
+        "IGDp": [
+          0.11693200170315125,
+          0.00426535044777033
+        ],
+        "spacing": [
+          0.09718395863417799,
+          0.017119448771875958
+        ],
+        "spread": [
+          1.0518959131449808,
+          0.02470936228974935
+        ],
+        "n": [
+          12.6,
+          1.6655999999999997
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0984199120435547,
+          0.0
+        ],
+        "IGDp": [
+          1.2373344594114107e-10,
+          0.0
+        ],
+        "spacing": [
+          0.003485804308518531,
+          0.0
+        ],
+        "spread": [
+          0.6108442564298118,
+          0.0
+        ],
+        "n": [
+          677.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.6925989115810477,
+          0.009007470667183612
+        ],
+        "IGDp": [
+          0.13385548599675617,
+          0.0033326092677172657
+        ],
+        "spacing": [
+          0.005132730234032777,
+          0.0013826444374857648
+        ],
+        "spread": [
+          0.9452696755095257,
+          0.006616054165949724
+        ],
+        "n": [
+          21.6,
+          2.077368181136892
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.9871726876125979,
+          0.01852186533178609
+        ],
+        "IGDp": [
+          0.06845237232553553,
+          0.013580268839895528
+        ],
+        "spacing": [
+          0.00950121838793629,
+          0.0029699588523660098
+        ],
+        "spread": [
+          0.6125293275781694,
+          0.049852476244349936
+        ],
+        "n": [
+          195.25,
+          4.569799585321002
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9871726876125979,
+          0.01852186533178609
+        ],
+        "IGDp": [
+          0.06845237232553553,
+          0.013580268839895528
+        ],
+        "spacing": [
+          0.00950121838793629,
+          0.0029699588523660098
+        ],
+        "spread": [
+          0.6125293275781694,
+          0.049852476244349936
+        ],
+        "n": [
+          195.25,
+          4.569799585321002
+        ]
+      }
+    },
+    "Florianopolis": {
+      "nsga2": {
+        "HV": [
+          0.9824015527516232,
+          0.010310354841392236
+        ],
+        "IGDp": [
+          0.037465399074133036,
+          0.001262398282674935
+        ],
+        "spacing": [
+          0.005480246995932534,
+          0.0022097399868444127
+        ],
+        "spread": [
+          0.8166536746593124,
+          0.0167311376152772
+        ],
+        "n": [
+          73.6,
+          8.262972791919381
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.9178739893849723,
+          0.0054960217823834916
+        ],
+        "IGDp": [
+          0.05327304996413581,
+          0.0013585803094215015
+        ],
+        "spacing": [
+          0.010928869983359804,
+          0.004598464845322407
+        ],
+        "spread": [
+          0.8870219556301459,
+          0.020726493674313156
+        ],
+        "n": [
+          30.6,
+          1.6655999999999997
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.9061722818124682,
+          0.031680330594648407
+        ],
+        "IGDp": [
+          0.10020932930794024,
+          0.011864481539758222
+        ],
+        "spacing": [
+          0.04158038954091174,
+          0.011196520504270956
+        ],
+        "spread": [
+          0.9247198281280655,
+          0.013174439555347611
+        ],
+        "n": [
+          22.6,
+          2.574356494349607
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.1075855646996533,
+          0.0
+        ],
+        "IGDp": [
+          5.157305258449911e-11,
+          0.0
+        ],
+        "spacing": [
+          0.007086251797734496,
+          0.0
+        ],
+        "spread": [
+          0.6323881471617687,
+          0.0
+        ],
+        "n": [
+          333.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.7438739185293376,
+          0.008072262758440201
+        ],
+        "IGDp": [
+          0.11322721465363786,
+          0.0026770510951328536
+        ],
+        "spacing": [
+          0.008617560625527234,
+          0.001813112661675227
+        ],
+        "spread": [
+          0.9220450311047671,
+          0.014231420029540427
+        ],
+        "n": [
+          21.2,
+          3.555014576622717
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.9673699593049913,
+          0.02599180700182417
+        ],
+        "IGDp": [
+          0.0810445657730825,
+          0.02762996018959949
+        ],
+        "spacing": [
+          0.007271128914503179,
+          0.0042296535641591195
+        ],
+        "spread": [
+          0.6300069051267634,
+          0.09097496240286178
+        ],
+        "n": [
+          188.5,
+          7.955
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9673699593049913,
+          0.02599180700182417
+        ],
+        "IGDp": [
+          0.0810445657730825,
+          0.02762996018959949
+        ],
+        "spacing": [
+          0.007271128914503179,
+          0.0042296535641591195
+        ],
+        "spread": [
+          0.6300069051267634,
+          0.09097496240286178
+        ],
+        "n": [
+          188.5,
+          7.955
+        ]
+      }
+    },
+    "Vitoria": {
+      "nsga2": {
+        "HV": [
+          1.003290357295049,
+          0.02371156403125778
+        ],
+        "IGDp": [
+          0.03004768487760212,
+          0.003362420081443147
+        ],
+        "spacing": [
+          0.007865198202090539,
+          0.004273123189456645
+        ],
+        "spread": [
+          0.7878938109894622,
+          0.04568927665213608
+        ],
+        "n": [
+          71.4,
+          8.026433290073491
+        ]
+      },
+      "nsga3": {
+        "HV": [
+          0.9282194845897426,
+          0.0086669687384868
+        ],
+        "IGDp": [
+          0.045772534600675485,
+          0.002171990152678098
+        ],
+        "spacing": [
+          0.008000075370669085,
+          0.00273664690291714
+        ],
+        "spread": [
+          0.8734898744816201,
+          0.018881991239802443
+        ],
+        "n": [
+          35.4,
+          1.6655999999999997
+        ]
+      },
+      "moead": {
+        "HV": [
+          0.912636882654645,
+          0.024885414118140103
+        ],
+        "IGDp": [
+          0.10293833446974152,
+          0.015365913860084167
+        ],
+        "spacing": [
+          0.0702195588593445,
+          0.020590189148184588
+        ],
+        "spread": [
+          0.9361328740962416,
+          0.0663275431160363
+        ],
+        "n": [
+          17.6,
+          1.6655999999999997
+        ]
+      },
+      "greedy": {
+        "HV": [
+          1.0969029197073643,
+          0.0
+        ],
+        "IGDp": [
+          1.1994438381872802e-10,
+          0.0
+        ],
+        "spacing": [
+          0.008523888952418283,
+          0.0
+        ],
+        "spread": [
+          0.6242179626337742,
+          0.0
+        ],
+        "n": [
+          260.0,
+          0.0
+        ]
+      },
+      "random": {
+        "HV": [
+          0.7519185407706456,
+          0.00519345403838658
+        ],
+        "IGDp": [
+          0.10943439604986552,
+          0.0035151806081631528
+        ],
+        "spacing": [
+          0.01379483203507594,
+          0.010130803556871279
+        ],
+        "spread": [
+          0.9164491945851833,
+          0.015670453741060242
+        ],
+        "n": [
+          20.0,
+          5.411420220237937
+        ]
+      },
+      "reevo": {
+        "HV": [
+          0.9341717791204872,
+          0.06411315491774526
+        ],
+        "IGDp": [
+          0.10765531643701867,
+          0.06747005288296236
+        ],
+        "spacing": [
+          0.010848058358032204,
+          0.005567306577826304
+        ],
+        "spread": [
+          0.7477571373624421,
+          0.02479746553557436
+        ],
+        "n": [
+          193.75,
+          1.523266528440334
+        ]
+      },
+      "zero_shot": {
+        "HV": [
+          0.9341717791204872,
+          0.06411315491774526
+        ],
+        "IGDp": [
+          0.10765531643701867,
+          0.06747005288296236
+        ],
+        "spacing": [
+          0.010848058358032204,
+          0.005567306577826304
+        ],
+        "spread": [
+          0.7477571373624421,
+          0.02479746553557436
+        ],
+        "n": [
+          193.75,
+          1.523266528440334
+        ]
+      }
+    }
+  },
+  "ref_info": {
+    "Manaus": {
+      "n_points": 942,
+      "ideal": [
+        48.0,
+        6.5685e-05
+      ],
+      "nadir": [
+        989.0,
+        0.995317814
+      ]
+    },
+    "Natal": {
+      "n_points": 435,
+      "ideal": [
+        11.0,
+        0.000110067
+      ],
+      "nadir": [
+        445.0,
+        1.269807429
+      ]
+    },
+    "BeloHorizonte": {
+      "n_points": 1066,
+      "ideal": [
+        29.0,
+        0.0
+      ],
+      "nadir": [
+        1094.0,
+        1.033786422
+      ]
+    },
+    "Goiania": {
+      "n_points": 679,
+      "ideal": [
+        24.0,
+        0.000775891
+      ],
+      "nadir": [
+        702.0,
+        1.300047272
+      ]
+    },
+    "JoaoPessoa": {
+      "n_points": 399,
+      "ideal": [
+        10.0,
+        4.399e-06
+      ],
+      "nadir": [
+        408.0,
+        1.47258604
+      ]
+    },
+    "CampoGrande": {
+      "n_points": 391,
+      "ideal": [
+        28.0,
+        0.000235588
+      ],
+      "nadir": [
+        418.0,
+        1.177454381
+      ]
+    },
+    "Curitiba": {
+      "n_points": 899,
+      "ideal": [
+        41.0,
+        0.000211115
+      ],
+      "nadir": [
+        951.0,
+        1.617612969
+      ]
+    },
+    "Recife": {
+      "n_points": 677,
+      "ideal": [
+        18.0,
+        0.00022069
+      ],
+      "nadir": [
+        694.0,
+        0.986562185
+      ]
+    },
+    "Florianopolis": {
+      "n_points": 333,
+      "ideal": [
+        10.0,
+        0.000406425
+      ],
+      "nadir": [
+        342.0,
+        2.01897979
+      ]
+    },
+    "Vitoria": {
+      "n_points": 260,
+      "ideal": [
+        7.0,
+        0.0
+      ],
+      "nadir": [
+        266.0,
+        1.038151966
+      ]
+    }
+  },
+  "generalization": {
+    "reevo": {
+      "train_mean": 0.8789603248989427,
+      "train_maximin": 0.5891655198767923,
+      "test_mean": 0.9366222918078151,
+      "test_maximin": 0.8577747411931841,
+      "gap": -0.057661966908872375
+    },
+    "zero_shot": {
+      "train_mean": 0.8913162828492909,
+      "train_maximin": 0.5891655198767923,
+      "test_mean": 0.9704718362941158,
+      "test_maximin": 0.9341717791204872,
+      "gap": -0.07915555344482494
+    },
+    "greedy": {
+      "train_mean": 1.0782693169905204,
+      "train_maximin": 1.0410878920971256,
+      "test_mean": 1.107348236138613,
+      "test_maximin": 1.0969029197073643,
+      "gap": -0.029078919148092686
+    },
+    "nsga2": {
+      "train_mean": 0.8671367020529054,
+      "train_maximin": 0.8135602413412798,
+      "test_mean": 0.9291917951152183,
+      "test_maximin": 0.8649226321770287,
+      "gap": -0.06205509306231294
+    },
+    "nsga3": {
+      "train_mean": 0.8212103449083212,
+      "train_maximin": 0.7703816220293662,
+      "test_mean": 0.8718181672774131,
+      "test_maximin": 0.8169234455474333,
+      "gap": -0.05060782236909189
+    },
+    "moead": {
+      "train_mean": 0.8102363383012943,
+      "train_maximin": 0.7622419323569982,
+      "test_mean": 0.8715460630442852,
+      "test_maximin": 0.8274995333764104,
+      "gap": -0.0613097247429909
+    },
+    "random": {
+      "train_mean": 0.6839282492225043,
+      "train_maximin": 0.6561506817073827,
+      "test_mean": 0.7229186730277597,
+      "test_maximin": 0.6925989115810477,
+      "gap": -0.038990423805255414
+    }
+  },
+  "llm_usage": {
+    "reevo": {
+      "calls": 128,
+      "input_tokens": 195700,
+      "output_tokens": 42612,
+      "cache_read_tokens": 0,
+      "cost_usd": 0.0,
+      "by_model": {
+        "qwen2.5-coder:7b": {
+          "calls": 128,
+          "in": 195700,
+          "out": 42612,
+          "cost": 0.0
+        }
+      }
+    },
+    "zero_shot": {
+      "calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cache_read_tokens": 0,
+      "cost_usd": 0.0,
+      "by_model": {}
+    }
+  },
+  "train_elapsed_sec": 14972.6,
+  "instances": {
+    "Manaus": {
+      "n_sites": 1009,
+      "n_clients": 1172
+    },
+    "Natal": {
+      "n_sites": 453,
+      "n_clients": 627
+    },
+    "BeloHorizonte": {
+      "n_sites": 1111,
+      "n_clients": 1524
+    },
+    "Goiania": {
+      "n_sites": 722,
+      "n_clients": 1198
+    },
+    "JoaoPessoa": {
+      "n_sites": 414,
+      "n_clients": 615
+    },
+    "CampoGrande": {
+      "n_sites": 431,
+      "n_clients": 490
+    },
+    "Curitiba": {
+      "n_sites": 975,
+      "n_clients": 1362
+    },
+    "Recife": {
+      "n_sites": 709,
+      "n_clients": 920
+    },
+    "Florianopolis": {
+      "n_sites": 350,
+      "n_clients": 448
+    },
+    "Vitoria": {
+      "n_sites": 270,
+      "n_clients": 429
+    }
+  }
+}

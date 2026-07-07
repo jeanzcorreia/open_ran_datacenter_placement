@@ -1,0 +1,50 @@
+{
+  "A (sem balanceamento)|Natal": {
+    "n_feasible": 118,
+    "mean_imbalance": 3.075514654694759,
+    "mean_jain": 0.7577222620583381,
+    "mean_f2": 0.30409123414223604,
+    "min_n_odc": 15,
+    "max_n_odc": 386
+  },
+  "A (sem balanceamento)|BeloHorizonte": {
+    "n_feasible": 116,
+    "mean_imbalance": 3.868381622312952,
+    "mean_jain": 0.7521337679967594,
+    "mean_f2": 0.21102361086352406,
+    "min_n_odc": 54,
+    "max_n_odc": 1011
+  },
+  "B (com balanceamento)|Natal": {
+    "n_feasible": 119,
+    "mean_imbalance": 2.1703799709322125,
+    "mean_jain": 0.8233165961366685,
+    "mean_f2": 0.2754425817515026,
+    "min_n_odc": 12,
+    "max_n_odc": 453
+  },
+  "B (com balanceamento)|BeloHorizonte": {
+    "n_feasible": 81,
+    "mean_imbalance": 2.035057501629066,
+    "mean_jain": 0.8078007012880029,
+    "mean_f2": 0.344577122703172,
+    "min_n_odc": 36,
+    "max_n_odc": 780
+  },
+  "greedy|Natal": {
+    "n_feasible": 435,
+    "mean_imbalance": 3.0343687474508068,
+    "mean_jain": 0.8013244975042977,
+    "mean_f2": 0.14909331951808483,
+    "min_n_odc": 11,
+    "max_n_odc": 445
+  },
+  "greedy|BeloHorizonte": {
+    "n_feasible": 1066,
+    "mean_imbalance": 3.662790492274505,
+    "mean_jain": 0.8137960548217168,
+    "mean_f2": 0.12119522249247247,
+    "min_n_odc": 29,
+    "max_n_odc": 1094
+  }
+}
