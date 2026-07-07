@@ -65,6 +65,19 @@ Results/                  Saídas das rodadas (fronteiras .npz, métricas, check
 
 Baselines: NSGA-II, NSGA-III, MOEA/D (via [pymoo](https://pymoo.org/)), greedy (k-median) e random. Métricas: hypervolume, IGD+, spacing, spread, e desbalanceamento de carga (máx/média, Jain).
 
+### Sobre o modelo de linguagem (o que foi e o que não foi construído)
+
+Este projeto **não treina nem modifica** nenhum modelo de linguagem. O gerador é o
+**Qwen2.5-Coder-7B** (Alibaba), um modelo aberto **pré-treinado e congelado**, executado
+localmente (Ollama/Vulkan, quantização 4-bit) — nenhum peso é alterado. Toda a adaptação à
+tarefa acontece por **in-context learning**: o desempenho medido das heurísticas anteriores e
+as reflexões do próprio modelo entram no prompt e condicionam a geração seguinte. A
+contribuição de engenharia deste repositório é o **sistema em torno do LLM**: a formulação
+multiobjetivo, os prompts (geração, reflexão, crossover/mutação e o objetivo em linguagem
+natural), o laço evolutivo multi-cidade, o sandbox de isolamento de processo e o protocolo de
+avaliação com separação treino/teste. Em suma: o LLM é o motor, pronto de fábrica; o que se
+constrói aqui é o veículo em volta dele.
+
 ## Como rodar
 
 Requisitos: Python 3.10+, `pip install -r requirements.txt`.
