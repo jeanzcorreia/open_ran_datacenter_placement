@@ -4,6 +4,23 @@ Substituição do NSGA-II por um projetista de heurísticas guiado por LLM (esti
 
 Trabalho da disciplina Aprendizado de Máquina Supervisionado (Prof. Dr. Alexandre da Silva Simões), Programa de Pós-Graduação em Engenharia Elétrica — UNESP.
 
+## ▶️ Como rodar (avaliação)
+
+A implementação roda de ponta a ponta pelo notebook `notebook_vitrine.ipynb`, que reproduz os resultados do artigo. **Não requer GPU nem servidor de LLM:** os baselines (guloso e NSGA-II) rodam ao vivo em CPU, e os resultados do otimizador guiado por LLM são carregados de artefatos versionados no repositório.
+
+**Opção 1 — Google Colab (recomendado, um clique):** [Abrir no Colab](https://colab.research.google.com/github/jeanzcorreia/open_ran_datacenter_placement/blob/main/notebook_vitrine.ipynb). O notebook clona o repositório e instala as dependências na primeira célula; basta acionar **Ambiente de execução → Executar tudo**. A primeira execução leva ~2-3 min (instalação + clone); reexecuções são quase instantâneas.
+
+**Opção 2 — Local (Jupyter):**
+
+```bash
+git clone https://github.com/jeanzcorreia/open_ran_datacenter_placement
+cd open_ran_datacenter_placement
+pip install -r requirements.txt
+jupyter notebook notebook_vitrine.ipynb
+```
+
+O notebook produz as curvas de treino/validação exigidas (curva de convergência = HV por geração; e HV médio em treino [6 cidades] vs validação held-out [4 cidades]), além das fronteiras de Pareto (guloso × NSGA-II × heurística do LLM) e do resultado de balanceamento por linguagem natural (Fase 5b).
+
 ## Resumo
 
 O posicionamento de ODCs em redes Open RAN envolve um trade-off multiobjetivo entre custo (número de data centers) e latência (distância média de fronthaul), sujeito a restrições de capacidade e distância. Partindo de um trabalho que resolve o problema com o algoritmo genético NSGA-II, este projeto substitui os operadores evolutivos fixos por um modelo de linguagem que projeta heurísticas automaticamente: o LLM gera código de heurística, mede o resultado, reflete sobre ele e itera.
