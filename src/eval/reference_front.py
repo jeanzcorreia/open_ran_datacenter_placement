@@ -1,6 +1,6 @@
 """
 src/eval/reference_front.py — Fronteira de referência = união dos não-dominados VIÁVEIS de
-TODOS os métodos × seeds (CLAUDE.md §8). Fornece (ideal, nadir) para normalização e HV.
+TODOS os métodos × seeds (conforme as regras do projeto). Fornece (ideal, nadir) para normalização e HV.
 """
 
 from __future__ import annotations

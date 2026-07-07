@@ -51,7 +51,7 @@ open_ran_datacenter_placement-main/
 
 Nenhum arquivo original foi alterado. Toda a lógica nova vive em `src/`.
 
-**Contrato implementado** (igual a CLAUDE.md §6):
+**Contrato implementado** (igual ao contrato do projeto):
 - `ODCPlacementProblem.evaluate(x) -> EvalResult(F, feasible, info)`, com `F` shape `(3,)` (sinal de `F[0]` preservado), `feasible == (G==0)`, `info{n_odc, n_odc_nonempty, total_cap, mean_cap_per_odc, mean_fiber_km, max_fiber_km, mean_fiber_per_odc_km, viol}`. Tolera `float('inf')` em `F[2]`.
 - `ODCPlacementProblem.evaluate_population(X) -> (F, G)` reproduz `_evaluate` do original; `.to_pymoo()` devolve o `Problem` do pymoo para o NSGA-II.
 - `Optimizer.solve(instance, budget, seed) -> ParetoSet`; `ParetoSet.save/load` (npz + json).
@@ -135,7 +135,7 @@ Com pesos `(0,0,1)` e capacidade invariante, o problema roda **efetivamente mono
 
 ---
 
-## 5. Conformidade com as HARD RULES (CLAUDE.md §9)
+## 5. Conformidade com as HARD RULES do projeto (§9)
 
 - **§9.2** Não reescrevemos o original; encapsulamos em `src/`. Não replicamos a normalização min-max da variante GPT (`odc_problem.py` usa valores brutos ponderados).
 - **§9.3** `encoding='latin1'` na leitura; **sem dedupe** (cada linha = cliente, `oru_id=index+1`). *(Nota: o parser original lia em utf-8 default; para `Natal.csv` as colunas usadas são ASCII ⇒ latin1 e utf-8 são byte-idênticos, não afeta a reprodução.)*

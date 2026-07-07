@@ -126,6 +126,6 @@ python -m src.viz.plots            # gera o gráfico das fronteiras
 
 ## 8. Próximos passos (Fase 4 — fora do escopo agora)
 
-- Otimizador-LLM (ReEvo): laço gerar→avaliar→refletir→evoluir, com `place_odcs(instance) -> x` **sobre os mesmos sites** do modo justo, pontuado pelo **mesmo** `FairODCProblem.evaluate` (HV penalizado por inviabilidade), em **sandbox**; API Anthropic.
+- Otimizador-LLM (ReEvo): laço gerar→avaliar→refletir→evoluir, com `place_odcs(instance) -> x` **sobre os mesmos sites** do modo justo, pontuado pelo **mesmo** `FairODCProblem.evaluate` (HV penalizado por inviabilidade), em **sandbox**; API de LLM (na Fase 4: Groq para geração + Gemini para reflexão; na Fase 5, o gerador migrou para o Qwen 7B local por custo/quota).
 - O **greedy forte** é um baseline a bater (não só os EAs): a contribuição do LLM precisa ao menos igualá-lo em HV com boa diversidade.
 - Escalar para Manaus/10 cidades (Fase 5) reusando `load_instance_sites`.

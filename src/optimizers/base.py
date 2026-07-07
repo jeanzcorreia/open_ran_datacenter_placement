@@ -2,7 +2,7 @@
 src/optimizers/base.py — Interface comum dos otimizadores e o contêiner ParetoSet.
 
 ParetoSet PERSISTE a fronteira (X e F) — algo que o parser original NÃO faz (ele só salva
-a melhor solução da última geração). Persistir é HARD RULE da Fase 2 (CLAUDE.md §9.5),
+a melhor solução da última geração). Persistir é HARD RULE da Fase 2 (regra do projeto),
 necessário para HV/IGD+ na Fase 3.
 """
 
@@ -155,7 +155,7 @@ def feasible_nd_front(X, F, G):
 
 
 class Optimizer(ABC):
-    """Interface-contrato (CLAUDE.md §6): solve(instance, budget, seed) -> ParetoSet."""
+    """Interface-contrato do projeto: solve(instance, budget, seed) -> ParetoSet."""
 
     name: str = "optimizer"
 
