@@ -6,16 +6,27 @@ Contrato da heurística (string de código Python):
         # retorna os índices dos `n_active` sites a ativar (lista/array/set),
         # ou uma máscara booleana de tamanho instance.n_sites.
 
-Segurança (CLAUDE.md §9.6): validação por AST (sem import / open / dunder / eval/exec/...),
-execução com __builtins__ restrito + numpy, timeout (SIGALRM), e QUALQUER exceção/violação
-=> SandboxError (o chamador atribui score ruim). Sem I/O, sem rede.
+Segurança + ROBUSTEZ (Fase 5b — ISOLAMENTO DE PROCESSO):
+  • Validação por AST (sem import/open/dunder/eval/exec/...), execução com __builtins__ restrito
+    + numpy/math, SEM I/O nem rede.
+  • A heurística roda num SUBPROCESSO ISOLADO com timeout REAL. No timeout o processo é MORTO
+    (kill). Uma heurística travada (laço infinito/lento) morre de fato: **sem threads-zumbi, sem
+    acúmulo de GIL — o piso de robustez é DETERMINÍSTICO** (não depende da carga de CPU do momento).
+  • Qualquer exceção/violação/timeout/saída inválida => SandboxError (o chamador atribui HV=0; é o
+    piso de qualidade — penaliza, não elimina).
+
+Uso eficiente no LAÇO de avaliação: crie UM `HeuristicSandbox(hinst)` por (heurística × cidade) e
+reuse-o entre os pontos do sweep — o subprocesso paga o spawn + import do numpy UMA vez (handshake
+"ready"), e cada chamada cronometra só a EXECUÇÃO da heurística, não o startup. Feche-o (context
+manager) ao fim da avaliação: a contagem de processos volta ao baseline. `run_heuristic` é a versão
+one-shot (um subprocesso por chamada) — conveniente para testes/caminhos frios.
 """
 
 from __future__ import annotations
 
 import ast
 import math
-import signal
+import multiprocessing as _mp
 from dataclasses import dataclass
 
 import numpy as np
@@ -113,41 +124,10 @@ def _validate_ast(code: str):
         raise SandboxError("função place_odcs não definida")
 
 
-class _Timeout:
-    def __init__(self, seconds):
-        self.seconds = seconds
-
-    def __enter__(self):
-        def handler(signum, frame):
-            raise SandboxError("timeout")
-        self._old = signal.signal(signal.SIGALRM, handler)
-        signal.setitimer(signal.ITIMER_REAL, self.seconds)
-
-    def __exit__(self, *a):
-        signal.setitimer(signal.ITIMER_REAL, 0)
-        signal.signal(signal.SIGALRM, self._old)
-
-
-def run_heuristic(code: str, hinst: HeuristicInstance, n_active: int, timeout: float = 2.0) -> np.ndarray:
-    """Executa place_odcs e retorna um array de índices de sites únicos e válidos.
-
-    Lança SandboxError em qualquer falha (sintaxe, segurança, timeout, exceção, saída inválida).
-    """
+def validate_code(code: str) -> None:
+    """API pública: valida o código por AST (rejeita inseguro / sem place_odcs). Lança SandboxError.
+    Deve ser chamada UMA vez por heurística (no processo-pai) antes de gastar subprocesso."""
     _validate_ast(code)
-    ns = {"np": np, "numpy": np, "math": math, "__builtins__": _SAFE_BUILTINS}
-    try:
-        with _Timeout(timeout):
-            exec(compile(code, "<heuristic>", "exec"), ns)
-            fn = ns.get("place_odcs")
-            if not callable(fn):
-                raise SandboxError("place_odcs não é chamável")
-            out = fn(hinst, int(n_active))
-    except SandboxError:
-        raise
-    except Exception as e:  # qualquer erro de runtime da heurística
-        raise SandboxError(f"{type(e).__name__}: {e}")
-
-    return _normalize_selection(out, hinst.n_sites)
 
 
 def _normalize_selection(out, n_sites) -> np.ndarray:
@@ -166,3 +146,147 @@ def _normalize_selection(out, n_sites) -> np.ndarray:
     if idx.size == 0:
         raise SandboxError("seleção vazia")
     return idx
+
+
+# ------------------------------------------------------------------ ISOLAMENTO DE PROCESSO
+# spawn em todas as plataformas: determinístico e seguro (evita fork com threads do numpy/BLAS).
+_MP = _mp.get_context("spawn")
+# tempo máximo para o worker importar numpy + sinalizar "ready" (NÃO conta no timeout da heurística).
+_WORKER_STARTUP_TIMEOUT = 30.0
+
+
+def _sandbox_loop(conn, hinst):
+    """Roda no SUBPROCESSO: sinaliza "ready", depois atende (code, n_active) até o pai fechar/matar.
+    Cada heurística é exec'd com __builtins__ restrito + numpy; a saída é normalizada para índices.
+    Devolve ("ok", idx) ou ("err", msg). Prints da heurística são silenciados."""
+    try:
+        import os as _os
+        import sys as _sys
+        _sys.stdout = open(_os.devnull, "w")
+        _sys.stderr = open(_os.devnull, "w")
+    except Exception:
+        pass
+    try:
+        conn.send("ready")
+    except Exception:
+        return
+    while True:
+        try:
+            msg = conn.recv()
+        except (EOFError, OSError):
+            return  # o pai fechou o pipe
+        try:
+            code, n_active = msg
+            ns = {"np": np, "numpy": np, "math": math, "__builtins__": _SAFE_BUILTINS}
+            exec(compile(code, "<heuristic>", "exec"), ns)
+            fn = ns.get("place_odcs")
+            if not callable(fn):
+                conn.send(("err", "place_odcs não é chamável"))
+                continue
+            out = fn(hinst, int(n_active))
+            idx = _normalize_selection(out, hinst.n_sites)
+            conn.send(("ok", idx))
+        except SandboxError as e:
+            conn.send(("err", str(e)))
+        except BaseException as e:   # qualquer erro de runtime da heurística -> erro reportado
+            conn.send(("err", f"{type(e).__name__}: {e}"))
+
+
+class HeuristicSandbox:
+    """Subprocesso isolado que detém um `hinst` e executa heurísticas com timeout REAL por chamada.
+
+    Inicia o processo UMA vez (spawn + import numpy) e o reusa entre os pontos do sweep; no timeout
+    MATA o processo (a heurística travada morre — sem zumbi) e respawna na próxima chamada. Use como
+    context manager: ao fechar, o processo é encerrado e a contagem volta ao baseline.
+
+        with HeuristicSandbox(hinst) as sb:
+            for n in sweep:
+                try: idx = sb.run(code, n, timeout)
+                except SandboxError: ...   # crash/timeout/inviável -> HV=0
+    """
+
+    def __init__(self, hinst: HeuristicInstance):
+        self._hinst = hinst
+        self._proc = None
+        self._conn = None
+
+    def _ensure(self):
+        if self._proc is not None and self._proc.is_alive():
+            return
+        self._close_proc()
+        parent_conn, child_conn = _MP.Pipe()
+        self._proc = _MP.Process(target=_sandbox_loop, args=(child_conn, self._hinst), daemon=True)
+        self._proc.start()
+        child_conn.close()
+        self._conn = parent_conn
+        # espera o "ready" — o startup do worker NÃO conta no timeout da heurística.
+        if not self._conn.poll(_WORKER_STARTUP_TIMEOUT):
+            self._close_proc()
+            raise SandboxError("sandbox: worker não inicializou (startup timeout)")
+        try:
+            sig = self._conn.recv()
+        except (EOFError, OSError):
+            self._close_proc()
+            raise SandboxError("sandbox: worker morreu no startup")
+        if sig != "ready":
+            self._close_proc()
+            raise SandboxError("sandbox: handshake inválido")
+
+    def run(self, code: str, n_active: int, timeout: float) -> np.ndarray:
+        """Executa place_odcs(n_active) no worker com timeout REAL (só a execução). Retorna os
+        índices ou lança SandboxError (timeout=processo MORTO, exceção, saída inválida)."""
+        self._ensure()
+        try:
+            self._conn.send((code, int(n_active)))
+        except (BrokenPipeError, OSError):
+            self._close_proc()
+            raise SandboxError("sandbox: pipe quebrado")
+        if self._conn.poll(timeout):
+            try:
+                status, payload = self._conn.recv()
+            except (EOFError, OSError):
+                self._close_proc()
+                raise SandboxError("sandbox: worker morreu durante a chamada")
+            if status == "ok":
+                return payload
+            raise SandboxError(payload)
+        # TIMEOUT real -> MATA o processo (a heurística travada morre de fato); respawn na próxima.
+        self._close_proc()
+        raise SandboxError("timeout")
+
+    def _close_proc(self):
+        if self._proc is not None:
+            try:
+                if self._proc.is_alive():
+                    self._proc.kill()      # SIGKILL / TerminateProcess — incondicional
+            except Exception:
+                pass
+            try:
+                self._proc.join(timeout=2)
+            except Exception:
+                pass
+        if self._conn is not None:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
+        self._proc = None
+        self._conn = None
+
+    def close(self):
+        self._close_proc()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        self._close_proc()
+
+
+def run_heuristic(code: str, hinst: HeuristicInstance, n_active: int, timeout: float = 2.0) -> np.ndarray:
+    """Conveniência ONE-SHOT (um subprocesso por chamada): valida + executa place_odcs isolado e
+    retorna os índices. Para o LAÇO de avaliação, prefira `HeuristicSandbox` (reusa o processo no
+    sweep — paga o spawn 1x). Lança SandboxError em qualquer falha."""
+    _validate_ast(code)
+    with HeuristicSandbox(hinst) as sb:
+        return sb.run(code, n_active, timeout)

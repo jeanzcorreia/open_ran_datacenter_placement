@@ -49,6 +49,26 @@ REGRAS:
 - Responda APENAS com UM bloco ```python contendo a função `place_odcs` (nada fora do bloco)."""
 
 
+# Few-shot: UMA heurística VÁLIDA e VETORIZADA — mostra o FORMATO que roda sem erro no sandbox
+# (modelos pequenos como o qwen2.5-coder:7b tendem a escrever laços sobre clientes e variáveis
+# indefinidas; este molde ancora os idiomas corretos). NÃO é a vencedora — é só o formato.
+_FEWSHOT_EXAMPLE = """```python
+import numpy as np
+def place_odcs(instance, n_active):
+    D = instance.distances                       # (n_clients, n_sites)
+    n_sites = instance.n_sites
+    n = int(max(1, min(n_active, n_sites)))
+    nearest = D.min(axis=0)                       # (n_sites,) dist. de cada site ao cliente mais próximo
+    selected = [int(np.argmin(nearest))]
+    while len(selected) < n:                      # laço SÓ sobre n_active (nunca sobre clientes)
+        cur = D[:, selected].min(axis=1)          # (n_clients,) dist. ao ODC ativo mais próximo
+        gain = (cur[:, None] - np.minimum(cur[:, None], D)).sum(axis=0)   # (n_sites,) ganho por site
+        gain[selected] = -1.0                     # não re-selecionar
+        selected.append(int(np.argmax(gain)))
+    return selected
+```"""
+
+
 def generate_user(idea_hint: str = "") -> str:
     base = (
         "Escreva uma heurística `place_odcs` NOVA e eficaz. Pense no trade-off nº de ODCs x distância "
@@ -56,6 +76,15 @@ def generate_user(idea_hint: str = "") -> str:
     )
     if idea_hint:
         base += f"\nDireção sugerida: {idea_hint}"
+    base += (
+        "\n\nEXEMPLO de uma heurística VÁLIDA e VETORIZADA (mostra só o FORMATO que roda sem erro — "
+        "escreva uma DIFERENTE seguindo a direção sugerida; NÃO copie o exemplo):\n"
+        f"{_FEWSHOT_EXAMPLE}\n"
+        "Siga estes padrões: use `instance.distances` (não recalcule a partir de coords), VETORIZE "
+        "sobre clientes (laços só sobre n_active/sites), defina TODA variável antes de usar, retorne "
+        "exatamente `n_active` índices DISTINTOS e válidos e trate subconjunto vazio. Responda APENAS "
+        "com UM bloco ```python."
+    )
     return base
 
 

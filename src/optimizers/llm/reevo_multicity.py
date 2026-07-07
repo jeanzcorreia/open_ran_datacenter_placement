@@ -17,7 +17,7 @@ INVARIANTE DE CUSTO: os operadores LLM (_gen/_crossover/_mutate/_reflect_*) atua
 CÓDIGO + reflexões. A avaliação multi-cidade é 100% CPU (sandbox). Logo o nº de chamadas de
 API NÃO cresce com o nº de cidades — depende só de pop/gen (~68/seed, igual à Fase 4).
 
-🔒 INTEGRIDADE (CLAUDE.md §10): `solve_multi` recebe SOMENTE as 6 cidades de treino. Há uma
+🔒 INTEGRIDADE (regra do projeto): `solve_multi` recebe SOMENTE as 6 cidades de treino. Há uma
 asserção de defesa-em-profundidade contra vazamento das 4 cidades de teste.
 """
 
@@ -32,7 +32,7 @@ import numpy as np
 from ...problem.odc_problem import FairODCProblem
 from ..base import ParetoSet, feasible_nd_front
 from . import prompts
-from .heuristic_runtime import HeuristicInstance, SandboxError, run_heuristic
+from .heuristic_runtime import HeuristicInstance, HeuristicSandbox, SandboxError, run_heuristic, validate_code
 from .reevo import (
     IDEA_HINTS,
     ReEvoOptimizer,
@@ -84,7 +84,8 @@ def build_capped_sweep(instance, max_capacity, max_points=200):
     return [full[int(i)] for i in idx]
 
 
-def evaluate_heuristic_robust(code, fair, hinst, sweep, dist_max, per_call_timeout=1.5):
+def evaluate_heuristic_robust(code, fair, hinst, sweep, dist_max, per_call_timeout=1.5,
+                              early_exit_on_crash=False):
     """Como `evaluate_heuristic` (reevo.py), mas também conta CRASHES (SandboxError/timeout).
 
     Retorna (score, front, n_valid, n_crash):
@@ -95,15 +96,25 @@ def evaluate_heuristic_robust(code, fair, hinst, sweep, dist_max, per_call_timeo
     """
     Xs = []
     n_crash = 0
-    for n in sweep:
-        try:
-            idx = run_heuristic(code, hinst, n, timeout=per_call_timeout)
-        except SandboxError:
-            n_crash += 1
-            continue
-        x = np.zeros(hinst.n_sites)
-        x[idx] = 1.0
-        Xs.append(x)
+    try:
+        validate_code(code)                  # rejeita AST inseguro / sem place_odcs ANTES de gastar processo
+    except SandboxError:
+        return 0.0, None, 0, len(sweep)      # código inválido -> toda a varredura conta como crash
+    with HeuristicSandbox(hinst) as sb:      # UM subprocesso por (heurística × cidade); MORTO ao sair
+        for n in sweep:
+            try:
+                idx = sb.run(code, n, per_call_timeout)
+            except SandboxError:
+                n_crash += 1
+                if early_exit_on_crash:
+                    # No TREINO, qualquer crash já zera o HV desta cidade (piso de qualidade). Não
+                    # vale gastar os demais pontos do sweep -> corta o desperdício com heurística que
+                    # trava (de ~sweep×timeout para 1×timeout por cidade). Mesmo score final (=0).
+                    return 0.0, None, len(Xs), n_crash
+                continue
+            x = np.zeros(hinst.n_sites)
+            x[idx] = 1.0
+            Xs.append(x)
     if not Xs:
         return 0.0, None, 0, n_crash
     X = np.array(Xs)
@@ -162,7 +173,8 @@ class MultiCityReEvoOptimizer(ReEvoOptimizer):
         n_failed = 0
         for c in cities:
             raw, _front, n_valid, n_crash = evaluate_heuristic_robust(
-                code, c["fair"], c["hinst"], c["sweep"], c["dist_max"], per_call_timeout
+                code, c["fair"], c["hinst"], c["sweep"], c["dist_max"], per_call_timeout,
+                early_exit_on_crash=True,    # treino: 1º crash já penaliza a cidade -> não varre o resto
             )
             crashed = (n_crash > 0) or (raw <= 0.0)        # crash/timeout OU fronteira inviável
             city_score = 0.0 if crashed else raw            # <-- PISO: penaliza, não elimina
@@ -290,6 +302,7 @@ class MultiCityReEvoOptimizer(ReEvoOptimizer):
                       f"custo=${self.llm.usage.cost_usd:.3f}")
 
         best = pop[0]
+        self.final_population = list(pop)   # introspecção (Fase 5b): permite inspecionar a população final
         if total_offspring == 0 and self.generations > 0:
             # Sinaliza ALTO: nenhum filho foi avaliado -> evolução inerte (crossover/mutate
             # falhando). Não deveria acontecer após o fix do _HShim; é a salvaguarda contra

@@ -111,6 +111,8 @@ def main():
     ap.add_argument("--smoke", action="store_true",
                     help="config reduzida p/ validar o pipeline (cidades pequenas, baselines minúsculos)")
     ap.add_argument("--no-baselines", action="store_true", help="pula baselines (debug)")
+    ap.add_argument("--seeds", default=None,
+                    help="override das seeds do ReEvo (csv, ex.: '1' ou '1,2,3,4'); precedência sobre --smoke")
     args = ap.parse_args()
 
     cfg = _load_cfg(args.config)
@@ -146,6 +148,10 @@ def main():
         reevo_seeds = [1, 2]
         sweep_max, loop_to, apply_to, loop_sweep = 60, 0.6, 1.0, 8
         print("[SMOKE] cidades reduzidas + baselines minúsculos + 2 seeds.")
+
+    if args.seeds:                       # override explícito das seeds (precedência sobre --smoke)
+        reevo_seeds = [int(x) for x in str(args.seeds).split(",") if x.strip() != ""]
+        print(f"[seeds] override -> {reevo_seeds}")
 
     # Ablação zero-shot = MELHOR da MESMA população inicial do ReEvo (seeds fortes + mesmos hints),
     # sem evolução -> isola o ganho do laço evolutivo (n_samples = pop_size, fixado no construtor).
@@ -185,7 +191,19 @@ def main():
     t_train0 = time.time()
     reevo_runs = {}    # seed -> {"code", "meta"}
     zs_runs = {}
+    # CHECKPOINT por seed: cada seed concluído é salvo IMEDIATAMENTE em <out>/checkpoints/seedN.json.
+    # Numa interrupção (ex.: contenção de GPU), os seeds já treinados são RECARREGADOS no relançamento
+    # em vez de re-evoluídos — só os seeds faltantes rodam. (O cache de LLM ainda acelera um seed parcial.)
+    ckpt_dir = os.path.join(OUT_DIR, "checkpoints")
+    os.makedirs(ckpt_dir, exist_ok=True)
     for s in reevo_seeds:
+        ckpt = os.path.join(ckpt_dir, f"seed{s}.json")
+        if os.path.exists(ckpt):
+            with open(ckpt, encoding="utf-8") as fh:
+                d = json.load(fh)
+            reevo_runs[s] = d["reevo"]; zs_runs[s] = d["zs"]
+            print(f"\n  === ReEvo seed {s} === [CHECKPOINT encontrado -> pulando treino: {ckpt}]")
+            continue
         print(f"\n  === ReEvo seed {s} ===")
         try:
             rr = reevo.solve_multi(train_insts, seed=s)
@@ -199,6 +217,9 @@ def main():
         zr = zs.solve_multi(train_insts, seed=s)
         zs_runs[s] = dict(code=zr.code, meta=zr.meta)
         print(f"  zero-shot seed {s}: meanHV={zr.meta['train_mean_hv']:.4f} origem={zr.meta['best_origin']}")
+        with open(ckpt, "w", encoding="utf-8") as fh:    # salva ANTES do próximo seed
+            json.dump({"reevo": reevo_runs[s], "zs": zs_runs[s]}, fh, default=float)
+        print(f"  [checkpoint] seed {s} salvo -> {ckpt}")
 
     # vencedora "representativa" = a de MAIOR train_mean_hv entre os seeds (para salvar/relatar o código)
     best_seed = max(reevo_seeds, key=lambda s: reevo_runs[s]["meta"]["train_mean_hv"])
